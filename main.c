@@ -34,7 +34,6 @@ int main()
 
     while(fgets(a, length - 1, file))
     {
-        dot_count = 0;
         error = 0;
         printf("%s", a);
 
@@ -102,11 +101,13 @@ int main()
             }
         }
 
+        dot_count = 0;
+
         for(int i = open_bracket + 1; i < first_number; i++)
         {
             if(a[i] == '.') dot_count++;
 
-            if((isdigit(a[i]) == 0 && a[i] != '.') || (dot_count > 1 && error == 0))
+            if((isdigit(a[i]) == 0 && a[i] != '.') || dot_count > 1)
             {
                 for(int j = 0; j < i; j++) printf(" ");
 
@@ -117,12 +118,14 @@ int main()
                 break;
             }
         }
+
+        dot_count = 0;
 
         for(int i = first_number + 1; i < second_number; i++)
         {
             if(a[i] == '.') dot_count++;
 
-            if((isdigit(a[i]) == 0 && a[i] != '.') || (dot_count > 2 && error == 0))
+            if((isdigit(a[i]) == 0 && a[i] != '.') || dot_count > 1)
             {
                 for(int j = 0; j < i; j++) printf(" ");
 
@@ -134,11 +137,13 @@ int main()
             }
         }
 
+        dot_count = 0;
+
         for(int i = second_number + 2; i < close_bracket; i++)
         {
             if(a[i] == '.') dot_count++;
 
-            if((isdigit(a[i]) == 0 && a[i] != '.') || (dot_count > 3 && error == 0))
+            if((isdigit(a[i]) == 0 && a[i] != '.') || dot_count > 1)
             {
                 for(int j = 0; j < i; j++) printf(" ");
 
