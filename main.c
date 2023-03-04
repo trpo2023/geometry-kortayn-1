@@ -83,7 +83,7 @@ int main()
     while(fgets(a, length - 1, file))
     {
         error = 0;
-        printf("%s", a);
+        printf("\n%s", a);
 
         for(i = 0; i < length; i++)
             if(a[i] == '\n') end_line = i;
@@ -155,12 +155,10 @@ int main()
         
         if((a[close_bracket + 1] != '\n') && (a[close_bracket + 1] != EOF))
         {
-            printf("\n");
-
             for(j = 0; j < close_bracket + 1; j++) printf(" ");
 
             printf("^\n");
-            printf("Error at column %d: unexpected tokens \n", close_bracket + 1);
+            printf("Error at column %d: unexpected tokens\n", close_bracket + 1);
             error = 1;
         }
 
@@ -176,10 +174,8 @@ int main()
             }
 
             radius /= 10 * j;
-            printf("No Errors\n");
+            printf("\nNo Errors\n");
         }
-
-        printf("\n");
     }
 
     return 0;
