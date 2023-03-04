@@ -1,9 +1,10 @@
 circledfgf(1.0 1.0, 1.0)
 circle(1.0 1.0, 1.0(
+circle)1.0 1.0, 1.0)
 circle(1.0adfdf 1.0, 1.0)
 circle(1.0 1.0sdfdg, 1.0)
 circle(1.0 1.0, 1.0ddfgdfg)
-circle(1.0 1.0, 1.0) asddfdf
+circle(1.0 1.0, 1.0)asddfdf
 circle(1.0 1.0, 1......0)
 circle(1.0 1.....0, 1.0)
 circle(1....0 1.0, 1.0)

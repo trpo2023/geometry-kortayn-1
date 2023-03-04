@@ -13,9 +13,7 @@ int NumberCheck(int begin, int end, int error, char *a)
         {
             for(int j = 0; j < i; j++) printf(" ");
 
-            printf("^\n");
-            printf("Error at column %d: expected '<double>'\n", i);
-
+            printf("^\nError at column %d: expected '<double>'\n", i);
             error = 1;
             break;
         }
@@ -54,14 +52,14 @@ int main()
     }
 
     int i, j,
-        open_bracket = 0,
-        close_bracket = 0,
-        first_number = 0,
-        second_number = 0,
-        end_line = 0,
-        length = 0,
-        element = 0, 
-        error = 0;
+        open_bracket,
+        close_bracket,
+        first_number,
+        second_number,
+        end_line,
+        element, 
+        error,
+        length = 0;
 
     while(element != EOF)
     {
@@ -74,7 +72,13 @@ int main()
 
     while(fgets(a, length - 1, file))
     {
+        open_bracket = 0,
+        close_bracket = 0,
+        first_number = 0,
+        second_number = 0,
+        end_line = 0,
         error = 0;
+        
         printf("\n%s", a);
 
         for(i = 0; i < length; i++)
@@ -85,6 +89,17 @@ int main()
             if(a[i] == '(')
             {
                 open_bracket = i;
+                break;
+            }
+
+            if(a[i] == ')' && open_bracket == 0)
+            {
+                open_bracket = i;
+
+                for(j = 0; j < i; j++) printf(" ");
+
+                printf("^\nError at column %d: expected '('\n", i);
+                error = 1;
                 break;
             }
         }
@@ -107,26 +122,22 @@ int main()
             }
         }
 
-        for(i = 0; i < end_line; i++)
+        for(i = second_number + 1; i < end_line; i++)
         {
             if(a[i] == ')')
             {
                 close_bracket = i;
                 break;
             }
-        }
 
-        for(i = open_bracket + 1; i < end_line; i++)
-        {
             if(a[i] == '(' && open_bracket != 0)
             {
                 close_bracket = i;
 
                 for(j = 0; j < i; j++) printf(" ");
-                printf("^\n");
-                printf("Error at column %d: expected ')'\n", i);
 
-                error = 1;;
+                printf("^\nError at column %d: expected ')'\n", i);
+                error = 1;
                 break;
             }
         }
@@ -149,8 +160,7 @@ int main()
         {
             for(j = 0; j < close_bracket + 1; j++) printf(" ");
 
-            printf("^\n");
-            printf("Error at column %d: unexpected tokens\n", close_bracket + 1);
+            printf("^\nError at column %d: unexpected tokens\n", close_bracket + 1);
             error = 1;
         }
 
