@@ -1,17 +1,13 @@
 #include <stdio.h>
 #include <ctype.h>
 
-int NumberCheck(int begin, int end, int dot_count, int dot, char *a, int error)
+int NumberCheck(int begin, int end, int error, char *a)
 {
-    dot_count = 0;
+    int dot_count = 0;
 
     for(int i = begin; i < end; i++)
     {
-        if(a[i] == '.')
-        {
-            dot_count++;
-            dot = i;
-        }
+        if(a[i] == '.') dot_count++;
 
         if((isdigit(a[i]) == 0 && a[i] != '.') || dot_count > 1)
         {
@@ -62,14 +58,10 @@ int main()
         close_bracket = 0,
         first_number = 0,
         second_number = 0,
-        dot_count = 0,
-        dot = 0,
         end_line = 0,
         length = 0,
         element = 0, 
         error = 0;
-        
-    float radius = 0;
 
     while(element != EOF)
     {
@@ -149,9 +141,9 @@ int main()
             }
         }
 
-        error = NumberCheck(open_bracket + 1, first_number, dot_count, dot, a, error);
-        error = NumberCheck(first_number + 1, second_number, dot_count, dot, a, error);
-        error = NumberCheck(second_number + 2, close_bracket, dot_count, dot, a, error);
+        error = NumberCheck(open_bracket + 1, first_number, error, a);
+        error = NumberCheck(first_number + 1, second_number, error, a);
+        error = NumberCheck(second_number + 2, close_bracket, error, a);
         
         if((a[close_bracket + 1] != '\n') && (a[close_bracket + 1] != EOF))
         {
@@ -162,20 +154,7 @@ int main()
             error = 1;
         }
 
-        if(error == 0)
-        {
-            for(i = dot - 1, j = 1; i > second_number + 1; i--, j++)
-                radius += DigitChar(a[i]) * 10 * j;
-
-            for(i = dot + 1, j = 1; i < close_bracket; i++, j++)
-            {
-                radius *= 10 * j;
-                radius += DigitChar(a[i]);
-            }
-
-            radius /= 10 * j;
-            printf("\nNo Errors\n");
-        }
+        if(error == 0) printf("\nNo Errors\n");
     }
 
     return 0;
