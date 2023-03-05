@@ -158,7 +158,7 @@ int main()
         error = NumberCheck(first_number + 1, second_number, error, string);
         error = NumberCheck(second_number + 2, close_bracket, error, string);
         
-        if((string[close_bracket + 1] != '\n') && (string[close_bracket + 1] != EOF))
+        if(string[close_bracket + 1] != '\n')
         {
             for(j = 0; j < close_bracket + 1; j++) printf(" ");
 
