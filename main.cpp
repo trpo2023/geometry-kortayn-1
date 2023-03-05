@@ -1,26 +1,6 @@
-#include <stdio.h>
-#include <ctype.h>
+#include <iostream>
 
-int NumberCheck(int begin, int end, int error, char *a)
-{
-    int dot_count = 0;
-
-    for(int i = begin; i < end; i++)
-    {
-        if(a[i] == '.') dot_count++;
-
-        if((isdigit(a[i]) == 0 && a[i] != '.') || dot_count > 1)
-        {
-            for(int j = 0; j < i; j++) printf(" ");
-
-            printf("^\nError at column %d: expected '<double>'\n", i);
-            error = 1;
-            break;
-        }
-    }
-
-    return error;
-}
+using namespace std;
 
 int DigitChar(char digit)
 {
@@ -40,6 +20,27 @@ int DigitChar(char digit)
 	}
 }
 
+int NumberCheck(int begin, int end, int error, char *string)
+{
+    int dot_count = 0;
+
+    for(int i = begin; i < end; i++)
+    {
+        if(string[i] == '.') dot_count++;
+
+        if((isdigit(string[i]) == 0 && string[i] != '.') || dot_count > 1)
+        {
+            for(int j = 0; j < i; j++) cout << " ";
+
+            cout << "^\nError at column " << i << ": expected '<double>'\n";
+            error = 1;
+            break;
+        }
+    }
+
+    return error;
+}
+
 int main()
 {
     FILE* file;
@@ -47,7 +48,7 @@ int main()
 
     if (!file)
     {
-        printf("Error: check file name\n");
+        cout << "Error: check file name\n";
         return 1;
     }
 
@@ -67,10 +68,10 @@ int main()
         length++;
     }
 
-    char a[length], b[6] = "circle";
+    char string[length], figure[] = "circle";
     file = fopen("test.txt", "r");
 
-    while(fgets(a, length - 1, file))
+    while(fgets(string, length - 1, file))
     {
         open_bracket = 0,
         close_bracket = 0,
@@ -79,26 +80,27 @@ int main()
         end_line = 0,
         error = 0;
         
-        printf("\n%s", a);
+        cout << "\n" << string;
 
         for(i = 0; i < length; i++)
-            if(a[i] == '\n') end_line = i;
+        
+            if(string[i] == '\n') end_line = i;
 
         for(i = 0; i < end_line; i++)
         {
-            if(a[i] == '(')
+            if(string[i] == '(')
             {
                 open_bracket = i;
                 break;
             }
 
-            if(a[i] == ')' && open_bracket == 0)
+            if(string[i] == ')' && open_bracket == 0)
             {
                 open_bracket = i;
 
-                for(j = 0; j < i; j++) printf(" ");
+                for(j = 0; j < i; j++) cout << " ";
 
-                printf("^\nError at column %d: expected '('\n", i);
+                cout << "^\nError at column " << i << ": expected '('\n";
                 error = 1;
                 break;
             }
@@ -106,7 +108,7 @@ int main()
 
         for(i = open_bracket + 1; i < end_line; i++)
         {
-            if(a[i] == ' ')
+            if(string[i] == ' ')
             {
                 first_number = i;
                 break;
@@ -115,7 +117,7 @@ int main()
 
         for(i = first_number + 1; i < end_line; i++)
         {
-            if(a[i] == ',')
+            if(string[i] == ',')
             {
                 second_number = i;
                 break;
@@ -124,19 +126,19 @@ int main()
 
         for(i = second_number + 1; i < end_line; i++)
         {
-            if(a[i] == ')')
+            if(string[i] == ')')
             {
                 close_bracket = i;
                 break;
             }
 
-            if(a[i] == '(' && open_bracket != 0)
+            if(string[i] == '(' && open_bracket != 0)
             {
                 close_bracket = i;
 
-                for(j = 0; j < i; j++) printf(" ");
+                for(j = 0; j < i; j++) cout << " ";
 
-                printf("^\nError at column %d: expected ')'\n", i);
+                cout << "^\nError at column " << i << ": expected ')'\n";
                 error = 1;
                 break;
             }
@@ -144,27 +146,27 @@ int main()
 
         for(i = 0; i < open_bracket; i++)
         {
-            if(a[i] != b[i])
+            if(string[i] != figure[i])
             {
-                printf("^\nError at column 0: expected 'circle'\n");
+                cout << "^\nError at column 0: expected 'circle'\n";
                 error = 1;
                 break;
             }
         }
 
-        error = NumberCheck(open_bracket + 1, first_number, error, a);
-        error = NumberCheck(first_number + 1, second_number, error, a);
-        error = NumberCheck(second_number + 2, close_bracket, error, a);
+        error = NumberCheck(open_bracket + 1, first_number, error, string);
+        error = NumberCheck(first_number + 1, second_number, error, string);
+        error = NumberCheck(second_number + 2, close_bracket, error, string);
         
-        if((a[close_bracket + 1] != '\n') && (a[close_bracket + 1] != EOF))
+        if((string[close_bracket + 1] != '\n') && (string[close_bracket + 1] != EOF))
         {
             for(j = 0; j < close_bracket + 1; j++) printf(" ");
 
-            printf("^\nError at column %d: unexpected tokens\n", close_bracket + 1);
+            cout << "^\nError at column " << close_bracket + 1 << ": unexpected tokens\n";
             error = 1;
         }
 
-        if(error == 0) printf("\nNo Errors\n");
+        if(error == 0) cout << "\nNo Errors\n";
     }
 
     return 0;
