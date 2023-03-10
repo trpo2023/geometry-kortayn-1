@@ -69,7 +69,8 @@ int main()
     }
 
     char string[length], figure[] = "circle";
-    file = fopen("test.txt", "r");
+
+    rewind(file);
 
     while(fgets(string, length - 1, file))
     {
@@ -160,7 +161,7 @@ int main()
         
         if(string[close_bracket + 1] != '\n')
         {
-            for(j = 0; j < close_bracket + 1; j++) printf(" ");
+            for(j = 0; j < close_bracket + 1; j++) cout << " ";
 
             cout << "^\nError at column " << close_bracket + 1 << ": unexpected tokens\n";
             error = 1;
@@ -168,6 +169,8 @@ int main()
 
         if(error == 0) cout << "\nNo Errors\n";
     }
+
+    fclose(file);
 
     return 0;
 }
