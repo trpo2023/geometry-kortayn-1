@@ -89,6 +89,8 @@ int main()
         error,
         length = 0;
 
+    double radius;
+
     while(element != EOF)
     {
         element = fgetc(file);
@@ -194,9 +196,12 @@ int main()
         }
 
         if(error == 0)
+        {
+            radius = NumberString(second_number + 2, close_bracket, string);
             cout
-            << "\nSquare = " << pi * pow(NumberString(second_number + 2, close_bracket, string), 2)
-            << "\nPerimeter = " << pi * 2 * NumberString(second_number + 2, close_bracket, string);
+            << "\nSquare = " << pi * pow(radius, 2)
+            << "\nPerimeter = " << pi * 2 * radius;
+        }
     }
 
     fclose(file);
