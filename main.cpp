@@ -1,4 +1,7 @@
 #include <iostream>
+#include <cmath>
+
+#define pi 3.14159265358979323846
 
 using namespace std;
 
@@ -20,17 +23,41 @@ int DigitChar(char digit)
 	}
 }
 
+double NumberString(int begin, int end, char *string)
+{
+    int i, j,
+        dot = 0;
+
+    double number = 0;
+
+    for(i = begin; i < end; i++)
+        if(string[i] == '.') dot = i;
+
+    for(i = begin, j = dot - begin - 1; i < dot; i++, j--)
+        number += DigitChar(string[i]) * pow(10, j);
+
+    number *= pow(10, end - dot - 1);
+
+    for(i = dot + 1, j = end - dot - 2; i < end; i++, j--)
+        number += DigitChar(string[i]) * pow(10, j);
+
+    number /= pow(10, end - dot - 1);
+
+    return number;
+}
+
 int NumberCheck(int begin, int end, int error, char *string)
 {
-    int dot_count = 0;
+    int i, j,
+        dot_count = 0;
 
-    for(int i = begin; i < end; i++)
+    for(i = begin; i < end; i++)
     {
         if(string[i] == '.') dot_count++;
 
         if((isdigit(string[i]) == 0 && string[i] != '.') || dot_count > 1)
         {
-            for(int j = 0; j < i; j++) cout << " ";
+            for(j = 0; j < i; j++) cout << " ";
 
             cout << "^\nError at column " << i << ": expected '<double>'\n";
             error = 1;
@@ -84,7 +111,6 @@ int main()
         cout << "\n" << string;
 
         for(i = 0; i < length; i++)
-        
             if(string[i] == '\n') end_line = i;
 
         for(i = 0; i < end_line; i++)
