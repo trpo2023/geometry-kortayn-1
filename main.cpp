@@ -193,7 +193,10 @@ int main()
             error = 1;
         }
 
-        if(error == 0) cout << "\nNo Errors\n";
+        if(error == 0)
+            cout
+            << "\nSquare = " << pi * pow(NumberString(second_number + 2, close_bracket, string), 2)
+            << "\nPerimeter = " << pi * 2 * NumberString(second_number + 2, close_bracket, string);
     }
 
     fclose(file);
