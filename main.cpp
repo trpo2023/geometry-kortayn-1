@@ -200,7 +200,7 @@ int main()
             radius = NumberString(second_number + 2, close_bracket, string);
             cout
             << "\nSquare = " << pi * pow(radius, 2)
-            << "\nPerimeter = " << pi * 2 * radius;
+            << "\nPerimeter = " << pi * 2 * radius << "\n";
         }
     }
 
