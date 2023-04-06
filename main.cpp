@@ -3,6 +3,8 @@
 
 #define pi 3.14159265358979323846
 
+const char *figures[] = {"circle", "triangle", "polygon"};
+
 using namespace std;
 
 int DigitChar(char digit)
@@ -23,7 +25,7 @@ int DigitChar(char digit)
 	}
 }
 
-double NumberString(int begin, int end, char *string)
+double NumberString(char *string, int begin, int end)
 {
     int i, j,
         dot = 0;
@@ -46,7 +48,7 @@ double NumberString(int begin, int end, char *string)
     return number;
 }
 
-int NumberCheck(int begin, int end, int error, char *string)
+int NumberCheck(char *string, int begin, int end, int error)
 {
     int i, j,
         dot_count = 0;
@@ -55,7 +57,14 @@ int NumberCheck(int begin, int end, int error, char *string)
     {
         if(string[i] == '.') dot_count++;
 
-        if((isdigit(string[i]) == 0 && string[i] != '.') || dot_count > 1)
+        if((isdigit(string[i]) == 0 && string[i] != '.') ||
+            (string[begin] == '0' &&
+            string[begin + 1] != '.' &&
+            string[begin + 1] != ' ' &&
+            string[begin + 1] != ',' &&
+            string[begin + 1] != '(' &&
+            string[begin + 1] != ')') ||
+            dot_count > 1)
         {
             for(j = 0; j < i; j++) cout << " ";
 
@@ -63,6 +72,61 @@ int NumberCheck(int begin, int end, int error, char *string)
             error = 1;
             break;
         }
+    }
+
+    return error;
+}
+
+int WriteCheck(char *string, int &length, int &end_line, int &open_bracket, int &close_bracket, int &error)
+{
+    int i, j;
+
+    for(i = 0; i < length; i++)
+        if(string[i] == '\n') end_line = i;
+
+    for(i = 0; i < end_line; i++)
+    {
+        if(string[i] == '(' && open_bracket != 0)
+        {
+            close_bracket = i;
+
+            for(j = 0; j < i; j++) cout << " ";
+
+            cout << "^\nError at column " << i << ": expected ')'\n";
+            error = 1;
+        }
+
+        else if(string[i] == '(' && open_bracket == 0) open_bracket = i;
+
+        if(string[i] == ')' && open_bracket == 0)
+        {
+            open_bracket = i;
+
+            for(j = 0; j < i; j++) cout << " ";
+
+            cout << "^\nError at column " << i << ": expected '('\n";
+            error = 1;
+        }
+
+        else if(string[i] == ')' && close_bracket == 0) close_bracket = i;
+    }
+
+    for(i = 0; i < open_bracket; i++)
+    {
+        if(string[i] != figures[0][i] && string[i] != figures[1][i] && string[i] != figures[2][i])
+        {
+            cout << "^\nError at column 0: expected 'circle', 'triangle' or 'polygon'\n";
+            error = 1;
+            break;
+        }
+    }
+
+    if(string[close_bracket + 1] != '\n')
+    {
+        for(j = 0; j < close_bracket + 1; j++) cout << " ";
+
+        cout << "^\nError at column " << close_bracket + 1 << ": unexpected tokens\n";
+        error = 1;
     }
 
     return error;
@@ -79,17 +143,8 @@ int main()
         return 1;
     }
 
-    int i, j,
-        open_bracket,
-        close_bracket,
-        first_number,
-        second_number,
-        end_line,
-        element, 
-        error,
-        length = 0;
-
-    double radius;
+    char element;
+    int length = 0;
 
     while(element != EOF)
     {
@@ -97,45 +152,24 @@ int main()
         length++;
     }
 
-    char string[length], figure[] = "circle";
+    char string[length];
 
     rewind(file);
 
     while(fgets(string, length - 1, file))
     {
-        open_bracket = 0,
-        close_bracket = 0,
-        first_number = 0,
-        second_number = 0,
-        end_line = 0,
-        error = 0;
+        int open_bracket = 0,
+            close_bracket = 0,
+            first_number = 0,
+            second_number = 0,
+            end_line = 0,
+            error = 0;
         
         cout << "\n" << string;
 
-        for(i = 0; i < length; i++)
-            if(string[i] == '\n') end_line = i;
+        error = WriteCheck(string, length, end_line, open_bracket, close_bracket, error);
 
-        for(i = 0; i < end_line; i++)
-        {
-            if(string[i] == '(')
-            {
-                open_bracket = i;
-                break;
-            }
-
-            if(string[i] == ')' && open_bracket == 0)
-            {
-                open_bracket = i;
-
-                for(j = 0; j < i; j++) cout << " ";
-
-                cout << "^\nError at column " << i << ": expected '('\n";
-                error = 1;
-                break;
-            }
-        }
-
-        for(i = open_bracket + 1; i < end_line; i++)
+        for(int i = open_bracket + 1; i < end_line; i++)
         {
             if(string[i] == ' ')
             {
@@ -144,7 +178,7 @@ int main()
             }
         }
 
-        for(i = first_number + 1; i < end_line; i++)
+        for(int i = first_number + 1; i < end_line; i++)
         {
             if(string[i] == ',')
             {
@@ -153,51 +187,13 @@ int main()
             }
         }
 
-        for(i = second_number + 1; i < end_line; i++)
-        {
-            if(string[i] == ')')
-            {
-                close_bracket = i;
-                break;
-            }
-
-            if(string[i] == '(' && open_bracket != 0)
-            {
-                close_bracket = i;
-
-                for(j = 0; j < i; j++) cout << " ";
-
-                cout << "^\nError at column " << i << ": expected ')'\n";
-                error = 1;
-                break;
-            }
-        }
-
-        for(i = 0; i < open_bracket; i++)
-        {
-            if(string[i] != figure[i])
-            {
-                cout << "^\nError at column 0: expected 'circle'\n";
-                error = 1;
-                break;
-            }
-        }
-
-        error = NumberCheck(open_bracket + 1, first_number, error, string);
-        error = NumberCheck(first_number + 1, second_number, error, string);
-        error = NumberCheck(second_number + 2, close_bracket, error, string);
-        
-        if(string[close_bracket + 1] != '\n')
-        {
-            for(j = 0; j < close_bracket + 1; j++) cout << " ";
-
-            cout << "^\nError at column " << close_bracket + 1 << ": unexpected tokens\n";
-            error = 1;
-        }
+        error = NumberCheck(string, open_bracket + 1, first_number, error);
+        error = NumberCheck(string, first_number + 1, second_number, error);
+        error = NumberCheck(string, second_number + 2, close_bracket, error);
 
         if(error == 0)
         {
-            radius = NumberString(second_number + 2, close_bracket, string);
+            float radius = NumberString(string, second_number + 2, close_bracket);
             cout
             << "\nSquare = " << pi * pow(radius, 2)
             << "\nPerimeter = " << pi * 2 * radius << "\n";
