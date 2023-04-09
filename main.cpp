@@ -1,75 +1,28 @@
 #include <iostream>
 #include <cmath>
+#include <fstream>
 
 #define pi 3.14159265358979323846
 
-const char *figures[] = {"circle", "triangle", "polygon"};
-
 using namespace std;
 
-int DigitChar(char digit)
+int NumberCheck(string line, int begin, int end)
 {
-	switch (digit)
-	{
-		case '0': return 0;
-		case '1': return 1;
-		case '2': return 2;
-		case '3': return 3;
-		case '4': return 4;
-		case '5': return 5;
-		case '6': return 6;
-		case '7': return 7;
-		case '8': return 8;
-		case '9': return 9;
-		default : return -1;
-	}
-}
+    int dot_count = 0,
+        error = 0;
 
-double NumberString(char *string, int begin, int end)
-{
-    int i, j,
-        dot = 0;
-
-    double number = 0;
-
-    for(i = begin; i < end; i++)
-        if(string[i] == '.') dot = i;
-
-    for(i = begin, j = dot - begin - 1; i < dot; i++, j--)
-        number += DigitChar(string[i]) * pow(10, j);
-
-    number *= pow(10, end - dot - 1);
-
-    for(i = dot + 1, j = end - dot - 2; i < end; i++, j--)
-        number += DigitChar(string[i]) * pow(10, j);
-
-    number /= pow(10, end - dot - 1);
-
-    return number;
-}
-
-int NumberCheck(char *string, int begin, int end, int error)
-{
-    int i, j,
-        dot_count = 0;
-
-    for(i = begin; i < end; i++)
+    for(int i = begin; i < end; i++)
     {
-        if(string[i] == '.') dot_count++;
+        if(line[i] == '.') dot_count++;
 
-        if((isdigit(string[i]) == 0 && string[i] != '.') ||
-            (string[begin] == '0' &&
-            string[begin + 1] != '.' &&
-            string[begin + 1] != ' ' &&
-            string[begin + 1] != ',' &&
-            string[begin + 1] != '(' &&
-            string[begin + 1] != ')') ||
+        if((isdigit(line[i]) == 0 && line[i] != '.') ||
+            (line[begin] == '0' && isdigit(line[begin + 1]) != 0) ||
             dot_count > 1)
         {
-            for(j = 0; j < i; j++) cout << " ";
+            for(int j = 0; j < i; j++) cout << " ";
 
             cout << "^\nError at column " << i << ": expected '<double>'\n";
-            error = 1;
+            error++;
             break;
         }
     }
@@ -77,130 +30,112 @@ int NumberCheck(char *string, int begin, int end, int error)
     return error;
 }
 
-int WriteCheck(char *string, int &length, int &end_line, int &open_bracket, int &close_bracket, int &error)
+int WriteCheck(string line, string *figures, int &open_bracket, int &close_bracket)
 {
-    int i, j;
+    int error = 0;
 
-    for(i = 0; i < length; i++)
-        if(string[i] == '\n') end_line = i;
-
-    for(i = 0; i < end_line; i++)
+    for(int i = 0; i < int(line.length()); i++)
     {
-        if(string[i] == '(' && open_bracket != 0)
+        if(line[i] == '(' && open_bracket != 0)
         {
             close_bracket = i;
 
-            for(j = 0; j < i; j++) cout << " ";
+            for(int j = 0; j < i; j++) cout << " ";
 
             cout << "^\nError at column " << i << ": expected ')'\n";
-            error = 1;
+            error++;
         }
 
-        else if(string[i] == '(' && open_bracket == 0) open_bracket = i;
+        else if(line[i] == '(' && open_bracket == 0) open_bracket = i;
 
-        if(string[i] == ')' && open_bracket == 0)
+        if(line[i] == ')' && open_bracket == 0)
         {
             open_bracket = i;
 
-            for(j = 0; j < i; j++) cout << " ";
+            for(int j = 0; j < i; j++) cout << " ";
 
             cout << "^\nError at column " << i << ": expected '('\n";
-            error = 1;
+            error++;
         }
 
-        else if(string[i] == ')' && close_bracket == 0) close_bracket = i;
+        else if(line[i] == ')' && close_bracket == 0) close_bracket = i;
     }
 
-    for(i = 0; i < open_bracket; i++)
+    if(line.substr(0, open_bracket) != figures[0] &&
+        line.substr(0, open_bracket) != figures[1] &&
+        line.substr(0, open_bracket) != figures[2])
     {
-        if(string[i] != figures[0][i] && string[i] != figures[1][i] && string[i] != figures[2][i])
+        cout << "^\nError at column 0: expected 'circle', 'triangle' or 'polygon'\n";
+        error++;
+    }
+
+
+    if(close_bracket + 1 != int(line.length()))
+    {
+        for(int j = 0; j < close_bracket + 1; j++) cout << " ";
+
+        cout << "^\nError at column " << close_bracket + 1 << ": unexpected tokens\n";
+        error++;
+    }
+
+    return error;
+}
+
+void CircleCheck(string line, int open_bracket, int close_bracket, int error)
+{
+    int first_number = 0,
+        second_number = 0;
+
+    for(int i = open_bracket + 1; i < int(line.length()); i++)
+    {
+        if(line[i] == ' ')
         {
-            cout << "^\nError at column 0: expected 'circle', 'triangle' or 'polygon'\n";
-            error = 1;
+            first_number = i;
             break;
         }
     }
 
-    if(string[close_bracket + 1] != '\n')
+    for(int i = first_number + 1; i < int(line.length()); i++)
     {
-        for(j = 0; j < close_bracket + 1; j++) cout << " ";
-
-        cout << "^\nError at column " << close_bracket + 1 << ": unexpected tokens\n";
-        error = 1;
+        if(line[i] == ',')
+        {
+            second_number = i;
+            break;
+        }
     }
 
-    return error;
+    error += NumberCheck(line, open_bracket + 1, first_number);
+    error += NumberCheck(line, first_number + 1, second_number);
+    error += NumberCheck(line, second_number + 2, close_bracket);
+
+    if(!error)
+    {
+        float radius = stod(line.substr(second_number + 2, close_bracket));
+        cout
+        << "\nSquare = " << pi * pow(radius, 2)
+        << "\nPerimeter = " << pi * 2 * radius << "\n";
+    }
 }
 
 int main()
 {
-    FILE* file;
-    file = fopen("test.txt", "r");
+    string figures[] = {"circle", "triangle", "polygon"};
 
-    if (!file)
-    {
-        cout << "Error: check file name\n";
-        return 1;
-    }
+    ifstream file("test.txt");
+    string line;
 
-    char element;
-    int length = 0;
-
-    while(element != EOF)
-    {
-        element = fgetc(file);
-        length++;
-    }
-
-    char string[length];
-
-    rewind(file);
-
-    while(fgets(string, length - 1, file))
+    while(getline(file, line))
     {
         int open_bracket = 0,
             close_bracket = 0,
-            first_number = 0,
-            second_number = 0,
-            end_line = 0,
             error = 0;
+
+        cout << "\n" << line << "\n";
         
-        cout << "\n" << string;
+        error = WriteCheck(line, figures, open_bracket, close_bracket);
 
-        error = WriteCheck(string, length, end_line, open_bracket, close_bracket, error);
-
-        for(int i = open_bracket + 1; i < end_line; i++)
-        {
-            if(string[i] == ' ')
-            {
-                first_number = i;
-                break;
-            }
-        }
-
-        for(int i = first_number + 1; i < end_line; i++)
-        {
-            if(string[i] == ',')
-            {
-                second_number = i;
-                break;
-            }
-        }
-
-        error = NumberCheck(string, open_bracket + 1, first_number, error);
-        error = NumberCheck(string, first_number + 1, second_number, error);
-        error = NumberCheck(string, second_number + 2, close_bracket, error);
-
-        if(error == 0)
-        {
-            float radius = NumberString(string, second_number + 2, close_bracket);
-            cout
-            << "\nSquare = " << pi * pow(radius, 2)
-            << "\nPerimeter = " << pi * 2 * radius << "\n";
-        }
+        if(line.substr(0, open_bracket) == figures[0]) CircleCheck(line, open_bracket, close_bracket, error);
     }
-
-    fclose(file);
 
     return 0;
 }
