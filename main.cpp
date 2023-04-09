@@ -113,6 +113,8 @@ void CircleCheck(string line, int *commas, int begin, int end, int error)
         cout << "\nSquare = " << pi * pow(radius, 2)
              << "\nPerimeter = " << pi * 2 * radius << "\n";
     }
+
+    delete commas;
 }
 
 void TriangleCheck(string line, int *commas, int comma_count, int begin, int end, int error)
@@ -159,6 +161,8 @@ void TriangleCheck(string line, int *commas, int comma_count, int begin, int end
         cout << "\nSquare = " << sqrt(p / 2 * (p / 2 - a) * (p / 2 - b) * (p / 2 - c))
              << "\nPerimeter = " << p << "\n";
     }
+
+    delete commas;
 }
 
 void PolygonCheck(string line, int *commas, int comma_count, int begin, int end, int error)
@@ -212,6 +216,8 @@ void PolygonCheck(string line, int *commas, int comma_count, int begin, int end,
         cout << "\nSquare = " << fabs(square / 2)
              << "\nPerimeter = " << perimeter << "\n";
     }
+
+    delete commas;
 }
 
 string *Parser(int &lines_count)
@@ -255,6 +261,8 @@ void Lexer(int lines_count, string *lines)
         if(lines[i].substr(0, open_bracket) == "polygon")
             PolygonCheck(lines[i], commas, comma_count, open_bracket, close_bracket, error);
     }
+
+    delete lines;
 }
 
 int main()
