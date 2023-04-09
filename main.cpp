@@ -98,7 +98,7 @@ int *CommaCount(string line, int &comma_count, int open_bracket, int close_brack
 
 void CircleCheck(string line, int *commas, int begin, int end, int error)
 {
-    int space = 0;
+    int space;
 
     for(int i = begin + 1; i < commas[0]; i++)
         if(line[i] == ' ') space = i;
@@ -150,11 +150,12 @@ void TriangleCheck(string line, int *commas, int comma_count, int begin, int end
         xy[comma_count][0] = stod(line.substr(commas[comma_count - 1] + 2, space));
         xy[comma_count][1] = stod(line.substr(space + 1, end));
 
-        double a = sqrt(pow(fabs(xy[1][0] - xy[0][0]), 2) + pow(fabs(xy[1][1] - xy[0][1]), 2));
-        double b = sqrt(pow(fabs(xy[2][0] - xy[1][0]), 2) + pow(fabs(xy[2][1] - xy[1][1]), 2));
-        double c = sqrt(pow(fabs(xy[0][0] - xy[2][0]), 2) + pow(fabs(xy[0][1] - xy[2][1]), 2));
+        double a = sqrt(pow((xy[1][0] - xy[0][0]), 2) + pow((xy[1][1] - xy[0][1]), 2));
+        double b = sqrt(pow((xy[2][0] - xy[1][0]), 2) + pow((xy[2][1] - xy[1][1]), 2));
+        double c = sqrt(pow((xy[0][0] - xy[2][0]), 2) + pow((xy[0][1] - xy[2][1]), 2));
 
         double p = a + b + c;
+
         cout << "\nSquare = " << sqrt(p / 2 * (p / 2 - a) * (p / 2 - b) * (p / 2 - c))
              << "\nPerimeter = " << p << "\n";
     }
@@ -194,48 +195,74 @@ void PolygonCheck(string line, int *commas, int comma_count, int begin, int end,
     {
         xy[comma_count][0] = stod(line.substr(commas[comma_count - 1] + 2, space));
         xy[comma_count][1] = stod(line.substr(space + 1, end));
+
+        double perimeter = 0, square = 0;
+
+        for (int i = 0; i < comma_count + 1; i++)
+        {
+            int j = (i + 1) % (comma_count + 1);
+
+            double dx = xy[i][0] - xy[j][0];
+            double dy = xy[i][1] - xy[j][1];
+
+            perimeter += sqrt(pow(dx, 2) + pow(dy, 2));
+            square += xy[i][0] * xy[j][1] - xy[j][0] * xy[i][1];
+        }
+
+        cout << "\nSquare = " << fabs(square / 2)
+             << "\nPerimeter = " << perimeter << "\n";
     }
-
-    double perimeter = 0, square = 0;
-
-    for (int i = 0; i < comma_count + 1; i++)
-    {
-        int j = (i + 1) % (comma_count + 1);
-        perimeter += sqrt((xy[i][0] - xy[j][0]) * (xy[i][0] - xy[j][0]) + (xy[i][1] - xy[j][1]) * (xy[i][1] - xy[j][1]));
-        square += xy[i][0] * xy[j][1] - xy[j][0] * xy[i][1];
-    }
-
-    cout << "\nSquare = " << fabs(square / 2)
-         << "\nPerimeter = " << perimeter << "\n";
 }
 
-int main()
+string *Parser(int &lines_count)
 {
     ifstream file("test.txt");
     string line;
 
-    while(getline(file, line))
+    while(getline(file, line)) lines_count++;
+
+    file.clear();
+    file.seekg(0);
+
+    string *lines = new string[lines_count];
+
+    for(int i = 0; i < lines_count; i++) getline(file, lines[i]);
+
+    return lines;
+}
+
+void Lexer(int lines_count, string *lines)
+{
+    for(int i = 0; i < lines_count; i++)
     {
         int open_bracket = 0,
             close_bracket = 0,
             comma_count = 0,
             error = 0;
 
-        cout << "\n" << line << "\n";
+        cout << "\n" << lines[i] << "\n";
 
-        error = WriteCheck(line, open_bracket, close_bracket);
+        error = WriteCheck(lines[i], open_bracket, close_bracket);
 
-        int *commas = CommaCount(line, comma_count, open_bracket, close_bracket);
+        int *commas = CommaCount(lines[i], comma_count, open_bracket, close_bracket);
 
-        if(line.substr(0, open_bracket) == "circle")
-            CircleCheck(line, commas, open_bracket, close_bracket, error);
+        if(lines[i].substr(0, open_bracket) == "circle")
+            CircleCheck(lines[i], commas, open_bracket, close_bracket, error);
 
-        if(line.substr(0, open_bracket) == "triangle")
-            TriangleCheck(line, commas, comma_count, open_bracket, close_bracket, error);
+        if(lines[i].substr(0, open_bracket) == "triangle")
+            TriangleCheck(lines[i], commas, comma_count, open_bracket, close_bracket, error);
 
-        if(line.substr(0, open_bracket) == "polygon")
-            PolygonCheck(line, commas, comma_count, open_bracket, close_bracket, error);
+        if(lines[i].substr(0, open_bracket) == "polygon")
+            PolygonCheck(lines[i], commas, comma_count, open_bracket, close_bracket, error);
     }
+}
 
+int main()
+{
+    int lines_count = 0;
+
+    string *lines = Parser(lines_count);
+    Lexer(lines_count, lines);
+    
     return 0;
 }
