@@ -81,15 +81,14 @@ int WriteCheck(string line, int &open_bracket, int &close_bracket)
     return error;
 }
 
-int *CommaCount(string line, int open_bracket, int close_bracket)
+int *CommaCount(string line, int &comma_count, int open_bracket, int close_bracket)
 {
-    int count = 0;
     int *commas;
 
     for(int i = open_bracket + 1; i < close_bracket; i++)
-        if(line[i] == ',') count++;
+        if(line[i] == ',') comma_count++;
 
-    commas = new int[count];
+    commas = new int[comma_count];
 
     for(int i = open_bracket + 1, j = 0; i < close_bracket; i++)
         if(line[i] == ',') commas[j++] = i;
@@ -135,13 +134,14 @@ int main()
     {
         int open_bracket = 0,
             close_bracket = 0,
+            comma_count = 0,
             error = 0;
 
         cout << "\n" << line << "\n";
 
         error = WriteCheck(line, open_bracket, close_bracket);
 
-        int *commas = CommaCount(line, open_bracket, close_bracket);
+        int *commas = CommaCount(line, comma_count, open_bracket, close_bracket);
 
         if(line.substr(0, open_bracket) == "circle")
             CircleCheck(line, commas, open_bracket, close_bracket, error);
