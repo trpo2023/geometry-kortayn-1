@@ -81,47 +81,47 @@ int WriteCheck(string line, int &open_bracket, int &close_bracket)
     return error;
 }
 
-void CircleCheck(string line, int open_bracket, int close_bracket, int error)
+int *CommaCount(string line, int open_bracket, int close_bracket)
 {
-    int first_number = 0,
-        second_number = 0;
+    int count = 0;
+    int *commas;
 
-    for(int i = open_bracket + 1; i < int(line.length()); i++)
-    {
-        if(line[i] == ' ')
-        {
-            first_number = i;
-            break;
-        }
-    }
+    for(int i = open_bracket + 1; i < close_bracket; i++)
+        if(line[i] == ',') count++;
 
-    for(int i = first_number + 1; i < int(line.length()); i++)
-    {
-        if(line[i] == ',')
-        {
-            second_number = i;
-            break;
-        }
-    }
+    commas = new int[count];
 
-    error += NumberCheck(line, open_bracket + 1, first_number);
-    error += NumberCheck(line, first_number + 1, second_number);
-    error += NumberCheck(line, second_number + 2, close_bracket);
+    for(int i = open_bracket + 1, j = 0; i < close_bracket; i++)
+        if(line[i] == ',') commas[j++] = i;
+    
+    return commas;
+}
+
+void CircleCheck(string line, int *commas, int open_bracket, int close_bracket, int error)
+{
+    int space = 0;
+
+    for(int i = open_bracket + 1; i < commas[0]; i++)
+        if(line[i] == ' ') space = i;
+
+    error += NumberCheck(line, open_bracket + 1, space);
+    error += NumberCheck(line, space + 1, commas[0]);
+    error += NumberCheck(line, commas[0] + 2, close_bracket);
 
     if(!error)
     {
-        float radius = stod(line.substr(second_number + 2, close_bracket));
+        float radius = stod(line.substr(commas[0] + 2, close_bracket));
         cout << "\nSquare = " << pi * pow(radius, 2)
              << "\nPerimeter = " << pi * 2 * radius << "\n";
     }
 }
 
-void TriangleCheck(string line, int open_bracket, int close_bracket, int error)
+void TriangleCheck(string line, int *commas, int open_bracket, int close_bracket, int error)
 {
     cout << "\nFuture\n";
 }
 
-void PolygonCheck(string line, int open_bracket, int close_bracket, int error)
+void PolygonCheck(string line, int *commas, int open_bracket, int close_bracket, int error)
 {
     cout << "\nFuture\n";
 }
@@ -141,14 +141,16 @@ int main()
 
         error = WriteCheck(line, open_bracket, close_bracket);
 
+        int *commas = CommaCount(line, open_bracket, close_bracket);
+
         if(line.substr(0, open_bracket) == "circle")
-            CircleCheck(line, open_bracket, close_bracket, error);
+            CircleCheck(line, commas, open_bracket, close_bracket, error);
 
         if(line.substr(0, open_bracket) == "triangle")
-            TriangleCheck(line, open_bracket, close_bracket, error);
+            TriangleCheck(line, commas, open_bracket, close_bracket, error);
 
         if(line.substr(0, open_bracket) == "polygon")
-            PolygonCheck(line, open_bracket, close_bracket, error);
+            PolygonCheck(line, commas, open_bracket, close_bracket, error);
     }
 
     return 0;
