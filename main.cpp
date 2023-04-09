@@ -1,6 +1,6 @@
 #include <iostream>
-#include <cmath>
 #include <fstream>
+#include <cmath>
 
 #define pi 3.14159265358979323846
 
@@ -30,7 +30,7 @@ int NumberCheck(string line, int begin, int end)
     return error;
 }
 
-int WriteCheck(string line, string *figures, int &open_bracket, int &close_bracket)
+int WriteCheck(string line, int &open_bracket, int &close_bracket)
 {
     int error = 0;
 
@@ -61,9 +61,9 @@ int WriteCheck(string line, string *figures, int &open_bracket, int &close_brack
         else if(line[i] == ')' && close_bracket == 0) close_bracket = i;
     }
 
-    if(line.substr(0, open_bracket) != figures[0] &&
-        line.substr(0, open_bracket) != figures[1] &&
-        line.substr(0, open_bracket) != figures[2])
+    if(line.substr(0, open_bracket) != "circle" &&
+        line.substr(0, open_bracket) != "triangle" &&
+        line.substr(0, open_bracket) != "polygon")
     {
         cout << "^\nError at column 0: expected 'circle', 'triangle' or 'polygon'\n";
         error++;
@@ -111,16 +111,23 @@ void CircleCheck(string line, int open_bracket, int close_bracket, int error)
     if(!error)
     {
         float radius = stod(line.substr(second_number + 2, close_bracket));
-        cout
-        << "\nSquare = " << pi * pow(radius, 2)
-        << "\nPerimeter = " << pi * 2 * radius << "\n";
+        cout << "\nSquare = " << pi * pow(radius, 2)
+             << "\nPerimeter = " << pi * 2 * radius << "\n";
     }
+}
+
+void TriangleCheck(string line, int open_bracket, int close_bracket, int error)
+{
+    cout << "\nFuture\n";
+}
+
+void PolygonCheck(string line, int open_bracket, int close_bracket, int error)
+{
+    cout << "\nFuture\n";
 }
 
 int main()
 {
-    string figures[] = {"circle", "triangle", "polygon"};
-
     ifstream file("test.txt");
     string line;
 
@@ -131,10 +138,17 @@ int main()
             error = 0;
 
         cout << "\n" << line << "\n";
-        
-        error = WriteCheck(line, figures, open_bracket, close_bracket);
 
-        if(line.substr(0, open_bracket) == figures[0]) CircleCheck(line, open_bracket, close_bracket, error);
+        error = WriteCheck(line, open_bracket, close_bracket);
+
+        if(line.substr(0, open_bracket) == "circle")
+            CircleCheck(line, open_bracket, close_bracket, error);
+
+        if(line.substr(0, open_bracket) == "triangle")
+            TriangleCheck(line, open_bracket, close_bracket, error);
+
+        if(line.substr(0, open_bracket) == "polygon")
+            PolygonCheck(line, open_bracket, close_bracket, error);
     }
 
     return 0;
