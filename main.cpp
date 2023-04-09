@@ -115,14 +115,82 @@ void CircleCheck(string line, int *commas, int open_bracket, int close_bracket, 
     }
 }
 
-void TriangleCheck(string line, int *commas, int open_bracket, int close_bracket, int error)
+void TriangleCheck(string line, int *commas, int comma_count, int open_bracket, int close_bracket, int error)
 {
-    cout << "\nFuture\n";
+    int space;
+
+    int **xy = new int*[comma_count];
+    for(int i = 0; i < comma_count; i++) xy[i] = new int[2];
+
+    for(int i = 0; i < comma_count; i++)
+    {
+        for(int j = open_bracket + 1; j < commas[i]; j++)
+            if(line[j] == ' ') space = j;
+
+        error += NumberCheck(line, open_bracket + 1, space);
+        error += NumberCheck(line, space + 1, commas[i]);
+
+        if(!error)
+        {
+            xy[i][1] = stod(line.substr(open_bracket + 1, space));
+            xy[i][2] = stod(line.substr(space + 1, commas[i]));
+            cout << xy[i][1] << " " << xy[i][2] << "\n";
+        }
+
+        open_bracket = commas[i] + 1;
+    }
+
+    for(int i = commas[comma_count - 1] + 2; i < close_bracket; i++)
+        if(line[i] == ' ') space = i;
+
+    error += NumberCheck(line, commas[comma_count - 1] + 2, space);
+    error += NumberCheck(line, space + 1, close_bracket);
+
+    if(!error)
+    {
+        xy[comma_count - 1][1] = stod(line.substr(commas[comma_count - 1] + 2, space));
+        xy[comma_count - 1][2] = stod(line.substr(space + 1, close_bracket));
+        cout << xy[comma_count - 1][1] << " " << xy[comma_count - 1][2] << "\n";
+    }
 }
 
-void PolygonCheck(string line, int *commas, int open_bracket, int close_bracket, int error)
+void PolygonCheck(string line, int *commas, int comma_count, int open_bracket, int close_bracket, int error)
 {
-    cout << "\nFuture\n";
+    int space;
+
+    int **xy = new int*[comma_count];
+    for(int i = 0; i < comma_count; i++) xy[i] = new int[2];
+
+    for(int i = 0; i < comma_count; i++)
+    {
+        for(int j = open_bracket + 1; j < commas[i]; j++)
+            if(line[j] == ' ') space = j;
+
+        error += NumberCheck(line, open_bracket + 1, space);
+        error += NumberCheck(line, space + 1, commas[i]);
+
+        if(!error)
+        {
+            xy[i][1] = stod(line.substr(open_bracket + 1, space));
+            xy[i][2] = stod(line.substr(space + 1, commas[i]));
+            cout << xy[i][1] << " " << xy[i][2] << "\n";
+        }
+
+        open_bracket = commas[i] + 1;
+    }
+
+    for(int i = commas[comma_count - 1] + 2; i < close_bracket; i++)
+        if(line[i] == ' ') space = i;
+
+    error += NumberCheck(line, commas[comma_count - 1] + 2, space);
+    error += NumberCheck(line, space + 1, close_bracket);
+
+    if(!error)
+    {
+        xy[comma_count - 1][1] = stod(line.substr(commas[comma_count - 1] + 2, space));
+        xy[comma_count - 1][2] = stod(line.substr(space + 1, close_bracket));
+        cout << xy[comma_count - 1][1] << " " << xy[comma_count - 1][2] << "\n";
+    }
 }
 
 int main()
@@ -147,10 +215,10 @@ int main()
             CircleCheck(line, commas, open_bracket, close_bracket, error);
 
         if(line.substr(0, open_bracket) == "triangle")
-            TriangleCheck(line, commas, open_bracket, close_bracket, error);
+            TriangleCheck(line, commas, comma_count, open_bracket, close_bracket, error);
 
         if(line.substr(0, open_bracket) == "polygon")
-            PolygonCheck(line, commas, open_bracket, close_bracket, error);
+            PolygonCheck(line, commas, comma_count, open_bracket, close_bracket, error);
     }
 
     return 0;
