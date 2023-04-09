@@ -96,101 +96,117 @@ int *CommaCount(string line, int &comma_count, int open_bracket, int close_brack
     return commas;
 }
 
-void CircleCheck(string line, int *commas, int open_bracket, int close_bracket, int error)
+void CircleCheck(string line, int *commas, int begin, int end, int error)
 {
     int space = 0;
 
-    for(int i = open_bracket + 1; i < commas[0]; i++)
+    for(int i = begin + 1; i < commas[0]; i++)
         if(line[i] == ' ') space = i;
 
-    error += NumberCheck(line, open_bracket + 1, space);
+    error += NumberCheck(line, begin + 1, space);
     error += NumberCheck(line, space + 1, commas[0]);
-    error += NumberCheck(line, commas[0] + 2, close_bracket);
+    error += NumberCheck(line, commas[0] + 2, end);
 
     if(!error)
     {
-        float radius = stod(line.substr(commas[0] + 2, close_bracket));
+        float radius = stod(line.substr(commas[0] + 2, end));
         cout << "\nSquare = " << pi * pow(radius, 2)
              << "\nPerimeter = " << pi * 2 * radius << "\n";
     }
 }
 
-void TriangleCheck(string line, int *commas, int comma_count, int open_bracket, int close_bracket, int error)
+void TriangleCheck(string line, int *commas, int comma_count, int begin, int end, int error)
 {
     int space;
 
-    int **xy = new int*[comma_count];
-    for(int i = 0; i < comma_count; i++) xy[i] = new int[2];
+    double **xy = new double*[comma_count + 1];
+    for(int i = 0; i < comma_count + 1; i++) xy[i] = new double[2];
 
     for(int i = 0; i < comma_count; i++)
     {
-        for(int j = open_bracket + 1; j < commas[i]; j++)
+        for(int j = begin + 1; j < commas[i]; j++)
             if(line[j] == ' ') space = j;
 
-        error += NumberCheck(line, open_bracket + 1, space);
+        error += NumberCheck(line, begin + 1, space);
         error += NumberCheck(line, space + 1, commas[i]);
 
         if(!error)
         {
-            xy[i][1] = stod(line.substr(open_bracket + 1, space));
-            xy[i][2] = stod(line.substr(space + 1, commas[i]));
-            cout << xy[i][1] << " " << xy[i][2] << "\n";
+            xy[i][0] = stod(line.substr(begin + 1, space));
+            xy[i][1] = stod(line.substr(space + 1, commas[i]));
         }
 
-        open_bracket = commas[i] + 1;
+        begin = commas[i] + 1;
     }
 
-    for(int i = commas[comma_count - 1] + 2; i < close_bracket; i++)
+    for(int i = commas[comma_count - 1] + 2; i < end; i++)
         if(line[i] == ' ') space = i;
 
     error += NumberCheck(line, commas[comma_count - 1] + 2, space);
-    error += NumberCheck(line, space + 1, close_bracket);
+    error += NumberCheck(line, space + 1, end);
 
     if(!error)
     {
-        xy[comma_count - 1][1] = stod(line.substr(commas[comma_count - 1] + 2, space));
-        xy[comma_count - 1][2] = stod(line.substr(space + 1, close_bracket));
-        cout << xy[comma_count - 1][1] << " " << xy[comma_count - 1][2] << "\n";
+        xy[comma_count][0] = stod(line.substr(commas[comma_count - 1] + 2, space));
+        xy[comma_count][1] = stod(line.substr(space + 1, end));
+
+        double a = sqrt(pow(fabs(xy[1][0] - xy[0][0]), 2) + pow(fabs(xy[1][1] - xy[0][1]), 2));
+        double b = sqrt(pow(fabs(xy[2][0] - xy[1][0]), 2) + pow(fabs(xy[2][1] - xy[1][1]), 2));
+        double c = sqrt(pow(fabs(xy[0][0] - xy[2][0]), 2) + pow(fabs(xy[0][1] - xy[2][1]), 2));
+
+        double p = a + b + c;
+        cout << "\nSquare = " << sqrt(p / 2 * (p / 2 - a) * (p / 2 - b) * (p / 2 - c))
+             << "\nPerimeter = " << p << "\n";
     }
 }
 
-void PolygonCheck(string line, int *commas, int comma_count, int open_bracket, int close_bracket, int error)
+void PolygonCheck(string line, int *commas, int comma_count, int begin, int end, int error)
 {
     int space;
 
-    int **xy = new int*[comma_count];
-    for(int i = 0; i < comma_count; i++) xy[i] = new int[2];
+    double **xy = new double*[comma_count + 1];
+    for(int i = 0; i < comma_count + 1; i++) xy[i] = new double[2];
 
     for(int i = 0; i < comma_count; i++)
     {
-        for(int j = open_bracket + 1; j < commas[i]; j++)
+        for(int j = begin + 1; j < commas[i]; j++)
             if(line[j] == ' ') space = j;
 
-        error += NumberCheck(line, open_bracket + 1, space);
+        error += NumberCheck(line, begin + 1, space);
         error += NumberCheck(line, space + 1, commas[i]);
 
         if(!error)
         {
-            xy[i][1] = stod(line.substr(open_bracket + 1, space));
-            xy[i][2] = stod(line.substr(space + 1, commas[i]));
-            cout << xy[i][1] << " " << xy[i][2] << "\n";
+            xy[i][0] = stod(line.substr(begin + 1, space));
+            xy[i][1] = stod(line.substr(space + 1, commas[i]));
         }
 
-        open_bracket = commas[i] + 1;
+        begin = commas[i] + 1;
     }
 
-    for(int i = commas[comma_count - 1] + 2; i < close_bracket; i++)
+    for(int i = commas[comma_count - 1] + 2; i < end; i++)
         if(line[i] == ' ') space = i;
 
     error += NumberCheck(line, commas[comma_count - 1] + 2, space);
-    error += NumberCheck(line, space + 1, close_bracket);
+    error += NumberCheck(line, space + 1, end);
 
     if(!error)
     {
-        xy[comma_count - 1][1] = stod(line.substr(commas[comma_count - 1] + 2, space));
-        xy[comma_count - 1][2] = stod(line.substr(space + 1, close_bracket));
-        cout << xy[comma_count - 1][1] << " " << xy[comma_count - 1][2] << "\n";
+        xy[comma_count][0] = stod(line.substr(commas[comma_count - 1] + 2, space));
+        xy[comma_count][1] = stod(line.substr(space + 1, end));
     }
+
+    double perimeter = 0, square = 0;
+
+    for (int i = 0; i < comma_count + 1; i++)
+    {
+        int j = (i + 1) % (comma_count + 1);
+        perimeter += sqrt((xy[i][0] - xy[j][0]) * (xy[i][0] - xy[j][0]) + (xy[i][1] - xy[j][1]) * (xy[i][1] - xy[j][1]));
+        square += xy[i][0] * xy[j][1] - xy[j][0] * xy[i][1];
+    }
+
+    cout << "\nSquare = " << fabs(square / 2)
+         << "\nPerimeter = " << perimeter << "\n";
 }
 
 int main()
