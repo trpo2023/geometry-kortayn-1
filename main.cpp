@@ -18,6 +18,7 @@ struct figure
     string line;
     point *Points;
     int points_count;
+    double radius;
     double square;
     double perimeter;
     int error;
@@ -169,11 +170,9 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
             correct_figure.line = line;
             correct_figure.Points = Points;
             correct_figure.points_count = comma_count;
+            correct_figure.radius = radius;
             correct_figure.square = pi * pow(radius, 2);
             correct_figure.perimeter = pi * 2 * radius;
-            correct_figure.error = 0;
-
-            delete Points;
 
             return correct_figure;
         }
@@ -181,7 +180,6 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
         else
         {
             delete Commas;
-            delete Points;
 
             figure Error;
             Error.error = 1;
@@ -215,9 +213,6 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
             correct_figure.points_count = comma_count + 1;
             correct_figure.square = sqrt(perimeter / 2 * (perimeter / 2 - a) * (perimeter / 2 - b) * (perimeter / 2 - c));
             correct_figure.perimeter = perimeter;
-            correct_figure.error = 0;
-
-            delete Points;
 
             return correct_figure;
         }
@@ -225,7 +220,6 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
         else
         {
             delete Commas;
-            delete Points;
 
             figure Error;
             Error.error = 1;
@@ -259,9 +253,6 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
             correct_figure.points_count = comma_count + 1;
             correct_figure.square = fabs(square / 2);
             correct_figure.perimeter = perimeter;
-            correct_figure.error = 0;
-
-            delete Points;
 
             return correct_figure;
         }
@@ -269,7 +260,6 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
         else
         {
             delete Commas;
-            delete Points;
 
             figure Error;
             Error.error = 1;
@@ -278,7 +268,6 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
     }
 
     delete Commas;
-    delete Points;
 
     figure Error;
     Error.error = 1;
@@ -317,7 +306,7 @@ figure *Lexer(string *Lines, int lines_count, int &correct_count)
         int *Commas = CommaCount(Lines[i], comma_count, open_bracket, close_bracket);
         figure input_figure = FigureCheck(Lines[i], Commas, comma_count, open_bracket, close_bracket, error, flag);
 
-        if(!input_figure.error) correct_count++;
+        if(input_figure.error != 1) correct_count++;
     }
 
     flag = 1;
@@ -335,7 +324,7 @@ figure *Lexer(string *Lines, int lines_count, int &correct_count)
         int *Commas = CommaCount(Lines[i], comma_count, open_bracket, close_bracket);
         figure input_figure = FigureCheck(Lines[i], Commas, comma_count, open_bracket, close_bracket, error, flag);
 
-        if(!input_figure.error)
+        if(input_figure.error != 1)
         {
             input_figure.number = correct + 1;
             Figures[correct] = input_figure;
@@ -357,9 +346,14 @@ int main()
 
     for(int i = 0; i < correct_count; i++)
     {
-        cout << "\n" << Figures[i].number << ". " << Figures[i].line << "\n"
-             << "Square = " << Figures[i].square << "\n"
-             << "Perimeter = " << Figures[i].perimeter << "\n";
+        cout << "\n" << Figures[i].number << ". " << Figures[i].line << "\n";
+        if(Figures[i].line.substr(0, 6) == "circle")
+            cout << "Radius = " << Figures[i].radius << "\n";
+        cout << "Square = " << Figures[i].square << "\n"
+             << "Perimeter = " << Figures[i].perimeter << "\n"
+             << "Number of points: " << Figures[i].points_count << "\n";
+        for(int j = 0; j < Figures[i].points_count; j++)
+            cout << "Point " << j + 1 << ": (" << Figures[i].Points[j].x << ", " << Figures[i].Points[j].y << ")\n";
     }
 
     delete Figures;
