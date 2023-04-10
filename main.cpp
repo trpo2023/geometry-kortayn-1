@@ -6,7 +6,24 @@
 
 using namespace std;
 
-int NumberCheck(string line, int begin, int end)
+struct point
+{
+    double x;
+    double y;
+};
+
+struct figure
+{
+    int number;
+    string line;
+    point *Points;
+    int vertexes_count;
+    double square;
+    double perimeter;
+    int error;
+};
+
+int NumberCheck(string line, int begin, int end, int flag)
 {
     int dot_count = 0,
         error = 0;
@@ -15,13 +32,17 @@ int NumberCheck(string line, int begin, int end)
     {
         if(line[i] == '.') dot_count++;
 
-        if((isdigit(line[i]) == 0 && line[i] != '.') ||
+        if(((isdigit(line[i]) == 0 && line[i] != '.') ||
             (line[begin] == '0' && isdigit(line[begin + 1]) != 0) ||
-            dot_count > 1)
+            dot_count > 1))
         {
-            for(int j = 0; j < i; j++) cout << " ";
+            if(!flag)
+            {
+                cout << "\n" << line << "\n";
+                for(int j = 0; j < i; j++) cout << " ";
+                cout << "^\nError at column " << i << ": expected '<double>'\n";
+            }
 
-            cout << "^\nError at column " << i << ": expected '<double>'\n";
             error++;
             break;
         }
@@ -30,7 +51,7 @@ int NumberCheck(string line, int begin, int end)
     return error;
 }
 
-int WriteCheck(string line, int &open_bracket, int &close_bracket)
+int WriteCheck(string line, int &open_bracket, int &close_bracket, int flag)
 {
     int error = 0;
 
@@ -40,9 +61,13 @@ int WriteCheck(string line, int &open_bracket, int &close_bracket)
         {
             close_bracket = i;
 
-            for(int j = 0; j < i; j++) cout << " ";
+            if(!flag)
+            {
+                cout << "\n" << line << "\n";
+                for(int j = 0; j < i; j++) cout << " ";
+                cout << "^\nError at column " << i << ": expected ')'\n";
+            }
 
-            cout << "^\nError at column " << i << ": expected ')'\n";
             error++;
         }
 
@@ -52,9 +77,13 @@ int WriteCheck(string line, int &open_bracket, int &close_bracket)
         {
             open_bracket = i;
 
-            for(int j = 0; j < i; j++) cout << " ";
+            if(!flag)
+            {
+                cout << "\n" << line << "\n";
+                for(int j = 0; j < i; j++) cout << " ";
+                cout << "^\nError at column " << i << ": expected '('\n";
+            }
 
-            cout << "^\nError at column " << i << ": expected '('\n";
             error++;
         }
 
@@ -65,16 +94,25 @@ int WriteCheck(string line, int &open_bracket, int &close_bracket)
         line.substr(0, open_bracket) != "triangle" &&
         line.substr(0, open_bracket) != "polygon")
     {
-        cout << "^\nError at column 0: expected 'circle', 'triangle' or 'polygon'\n";
+        if(!flag)
+        {
+            cout << "\n" << line << "\n";
+            cout << "^\nError at column 0: expected 'circle', 'triangle' or 'polygon'\n";
+        }
+
         error++;
     }
 
 
     if(close_bracket + 1 != int(line.length()))
     {
-        for(int j = 0; j < close_bracket + 1; j++) cout << " ";
+        if(!flag)
+        {
+            cout << "\n" << line << "\n";
+            for(int j = 0; j < close_bracket + 1; j++) cout << " ";
+            cout << "^\nError at column " << close_bracket + 1 << ": unexpected tokens\n";
+        }
 
-        cout << "^\nError at column " << close_bracket + 1 << ": unexpected tokens\n";
         error++;
     }
 
@@ -83,121 +121,167 @@ int WriteCheck(string line, int &open_bracket, int &close_bracket)
 
 int *CommaCount(string line, int &comma_count, int open_bracket, int close_bracket)
 {
-    int *commas;
-
     for(int i = open_bracket + 1; i < close_bracket; i++)
         if(line[i] == ',') comma_count++;
 
-    commas = new int[comma_count];
+    int *Commas = new int[comma_count];
 
     for(int i = open_bracket + 1, j = 0; i < close_bracket; i++)
-        if(line[i] == ',') commas[j++] = i;
+        if(line[i] == ',') Commas[j++] = i;
     
-    return commas;
+    return Commas;
 }
 
-void FigureCheck(string line, int *commas, int comma_count, int begin, int end, int error)
+figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end, int error, int flag)
 {
     int space;
-
-    double **xy = new double*[comma_count + 1];
-    for(int i = 0; i < comma_count + 1; i++) xy[i] = new double[2];
+    point *Points = new point[comma_count + 1];
+    figure correct_figure;
 
     for(int i = 0; i < comma_count; i++)
     {
-        for(int j = begin + 1; j < commas[i]; j++)
+        for(int j = begin + 1; j < Commas[i]; j++)
             if(line[j] == ' ') space = j;
 
-        error += NumberCheck(line, begin + 1, space);
-        error += NumberCheck(line, space + 1, commas[i]);
+        error += NumberCheck(line, begin + 1, space, flag);
+        error += NumberCheck(line, space + 1, Commas[i], flag);
 
         if(!error)
         {
-            xy[i][0] = stod(line.substr(begin + 1, space));
-            xy[i][1] = stod(line.substr(space + 1, commas[i]));
+            Points[i].x = stod(line.substr(begin + 1, space));
+            Points[i].y = stod(line.substr(space + 1, Commas[i]));
         }
 
-        begin = commas[i] + 1;
+        begin = Commas[i] + 1;
     }
 
     if(line.substr(0, 6) == "circle")
     {
-        error += NumberCheck(line, commas[0] + 2, end);
+        error += NumberCheck(line, Commas[0] + 2, end, flag);
 
         if(!error)
         {
-            float radius = stod(line.substr(commas[0] + 2, end));
-            cout << "\nSquare = " << pi * pow(radius, 2)
-                << "\nPerimeter = " << pi * 2 * radius << "\n";
+            float radius = stod(line.substr(Commas[0] + 2, end));
+
+            delete Commas;
+
+            correct_figure.line = line;
+            correct_figure.Points = Points;
+            correct_figure.vertexes_count = comma_count;
+            correct_figure.square = pi * pow(radius, 2);
+            correct_figure.perimeter = pi * 2 * radius;
+            correct_figure.error = 0;
+
+            delete Points;
+
+            return correct_figure;
         }
 
-        delete commas;
-        delete xy;
+        else
+        {
+            delete Commas;
+            delete Points;
 
-        return;
+            figure Error;
+            Error.error = 1;
+            return Error;
+        }
     }
 
-    for(int i = commas[comma_count - 1] + 2; i < end; i++)
+    for(int i = Commas[comma_count - 1] + 2; i < end; i++)
         if(line[i] == ' ') space = i;
 
-    error += NumberCheck(line, commas[comma_count - 1] + 2, space);
-    error += NumberCheck(line, space + 1, end);
+    error += NumberCheck(line, Commas[comma_count - 1] + 2, space, flag);
+    error += NumberCheck(line, space + 1, end, flag);
 
     if(line.substr(0, 8) == "triangle")
     {
         if(!error)
         {
-            xy[comma_count][0] = stod(line.substr(commas[comma_count - 1] + 2, space));
-            xy[comma_count][1] = stod(line.substr(space + 1, end));
+            Points[comma_count].x = stod(line.substr(Commas[comma_count - 1] + 2, space));
+            Points[comma_count].y = stod(line.substr(space + 1, end));
 
-            double a = sqrt(pow((xy[1][0] - xy[0][0]), 2) + pow((xy[1][1] - xy[0][1]), 2));
-            double b = sqrt(pow((xy[2][0] - xy[1][0]), 2) + pow((xy[2][1] - xy[1][1]), 2));
-            double c = sqrt(pow((xy[0][0] - xy[2][0]), 2) + pow((xy[0][1] - xy[2][1]), 2));
+            double a = sqrt(pow((Points[1].x - Points[0].x), 2) + pow((Points[1].y - Points[0].y), 2));
+            double b = sqrt(pow((Points[2].x - Points[1].x), 2) + pow((Points[2].y - Points[1].y), 2));
+            double c = sqrt(pow((Points[0].x - Points[2].x), 2) + pow((Points[0].y - Points[2].y), 2));
 
-            double p = a + b + c;
+            double perimeter = a + b + c;
 
-            cout << "\nSquare = " << sqrt(p / 2 * (p / 2 - a) * (p / 2 - b) * (p / 2 - c))
-                << "\nPerimeter = " << p << "\n";
+            delete Commas;
+
+            correct_figure.line = line;
+            correct_figure.Points = Points;
+            correct_figure.vertexes_count = comma_count + 1;
+            correct_figure.square = sqrt(perimeter / 2 * (perimeter / 2 - a) * (perimeter / 2 - b) * (perimeter / 2 - c));
+            correct_figure.perimeter = perimeter;
+            correct_figure.error = 0;
+
+            delete Points;
+
+            return correct_figure;
         }
 
-        delete commas;
-        delete xy;
+        else
+        {
+            delete Commas;
+            delete Points;
 
-        return;
+            figure Error;
+            Error.error = 1;
+            return Error;
+        }
     }
 
     if(line.substr(0, 7) == "polygon")
     {
         if(!error)
         {
-            xy[comma_count][0] = stod(line.substr(commas[comma_count - 1] + 2, space));
-            xy[comma_count][1] = stod(line.substr(space + 1, end));
-
             double perimeter = 0, square = 0;
+
+            Points[comma_count].x = stod(line.substr(Commas[comma_count - 1] + 2, space));
+            Points[comma_count].y = stod(line.substr(space + 1, end));
 
             for (int i = 0; i < comma_count + 1; i++)
             {
                 int j = (i + 1) % (comma_count + 1);
-
-                double dx = xy[i][0] - xy[j][0];
-                double dy = xy[i][1] - xy[j][1];
+                double dx = Points[i].x - Points[j].x;
+                double dy = Points[i].y - Points[j].y;
 
                 perimeter += sqrt(pow(dx, 2) + pow(dy, 2));
-                square += xy[i][0] * xy[j][1] - xy[j][0] * xy[i][1];
+                square += Points[i].x * Points[j].y - Points[j].x * Points[i].y;
             }
 
-            cout << "\nSquare = " << fabs(square / 2)
-                << "\nPerimeter = " << perimeter << "\n";
+            delete Commas;
+
+            correct_figure.line = line;
+            correct_figure.Points = Points;
+            correct_figure.vertexes_count = comma_count + 1;
+            correct_figure.square = fabs(square / 2);
+            correct_figure.perimeter = perimeter;
+            correct_figure.error = 0;
+
+            delete Points;
+
+            return correct_figure;
         }
 
-        delete commas;
-        delete xy;
+        else
+        {
+            delete Commas;
+            delete Points;
 
-        return;
+            figure Error;
+            Error.error = 1;
+            return Error;
+        }
     }
 
-    delete commas;
-    delete xy;
+    delete Commas;
+    delete Points;
+
+    figure Error;
+    Error.error = 1;
+    return Error;
 }
 
 string *Parser(int &lines_count)
@@ -210,15 +294,17 @@ string *Parser(int &lines_count)
     file.clear();
     file.seekg(0);
 
-    string *lines = new string[lines_count];
+    string *Lines = new string[lines_count];
 
-    for(int i = 0; i < lines_count; i++) getline(file, lines[i]);
+    for(int i = 0; i < lines_count; i++) getline(file, Lines[i]);
 
-    return lines;
+    return Lines;
 }
 
-void Lexer(int lines_count, string *lines)
+void Lexer(int lines_count, string *Lines)
 {
+    int correct_count = 0, correct = 0, flag = 0;
+
     for(int i = 0; i < lines_count; i++)
     {
         int open_bracket = 0,
@@ -226,24 +312,53 @@ void Lexer(int lines_count, string *lines)
             comma_count = 0,
             error = 0;
 
-        cout << "\n" << lines[i] << "\n";
+        error = WriteCheck(Lines[i], open_bracket, close_bracket, flag);
+        int *Commas = CommaCount(Lines[i], comma_count, open_bracket, close_bracket);
+        figure input_figure = FigureCheck(Lines[i], Commas, comma_count, open_bracket, close_bracket, error, flag);
 
-        error = WriteCheck(lines[i], open_bracket, close_bracket);
-
-        int *commas = CommaCount(lines[i], comma_count, open_bracket, close_bracket);
-
-        FigureCheck(lines[i], commas, comma_count, open_bracket, close_bracket, error);
+        if(!input_figure.error) correct_count++;
     }
 
-    delete lines;
+    flag = 1;
+
+    figure *Figures = new figure[correct_count];
+
+    for(int i = 0; i < lines_count; i++)
+    {
+        int open_bracket = 0,
+            close_bracket = 0,
+            comma_count = 0,
+            error = 0;
+
+        error = WriteCheck(Lines[i], open_bracket, close_bracket, flag);
+        int *Commas = CommaCount(Lines[i], comma_count, open_bracket, close_bracket);
+        figure input_figure = FigureCheck(Lines[i], Commas, comma_count, open_bracket, close_bracket, error, flag);
+
+        if(!input_figure.error)
+        {
+            input_figure.number = correct + 1;
+            Figures[correct] = input_figure;
+            correct++;
+        }
+    }
+
+    for(int i = 0; i < correct_count; i++)
+        {
+            cout << "\n" << Figures[i].number << ". " << Figures[i].line << "\n"
+                 << "Square = " << Figures[i].square << "\n"
+                 << "Perimeter = " << Figures[i].perimeter << "\n";
+        }
+
+    delete Lines;
+    delete Figures;
 }
 
 int main()
 {
     int lines_count = 0;
 
-    string *lines = Parser(lines_count);
-    Lexer(lines_count, lines);
-    
+    string *Lines = Parser(lines_count);
+    Lexer(lines_count, Lines);
+
     return 0;
 }
