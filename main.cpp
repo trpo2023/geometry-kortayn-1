@@ -135,6 +135,7 @@ int *CommaCount(string line, int &comma_count, int open_bracket, int close_brack
 figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end, int error, int flag)
 {
     int space;
+
     point *Points = new point[comma_count + 1];
     figure correct_figure;
 
@@ -301,9 +302,9 @@ string *Parser(int &lines_count)
     return Lines;
 }
 
-void Lexer(int lines_count, string *Lines)
+figure *Lexer(string *Lines, int lines_count, int &correct_count)
 {
-    int correct_count = 0, correct = 0, flag = 0;
+    int correct = 0, flag = 0;
 
     for(int i = 0; i < lines_count; i++)
     {
@@ -342,6 +343,18 @@ void Lexer(int lines_count, string *Lines)
         }
     }
 
+    delete Lines;
+    
+    return Figures;
+}
+
+int main()
+{
+    int lines_count = 0, correct_count = 0;
+
+    string *Lines = Parser(lines_count);
+    figure *Figures = Lexer(Lines, lines_count, correct_count);
+
     for(int i = 0; i < correct_count; i++)
     {
         cout << "\n" << Figures[i].number << ". " << Figures[i].line << "\n"
@@ -349,16 +362,7 @@ void Lexer(int lines_count, string *Lines)
              << "Perimeter = " << Figures[i].perimeter << "\n";
     }
 
-    delete Lines;
     delete Figures;
-}
-
-int main()
-{
-    int lines_count = 0;
-
-    string *Lines = Parser(lines_count);
-    Lexer(lines_count, Lines);
 
     return 0;
 }
