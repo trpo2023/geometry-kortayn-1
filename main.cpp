@@ -17,7 +17,7 @@ struct figure
     int number;
     string line;
     point *Points;
-    int vertexes_count;
+    int points_count;
     double square;
     double perimeter;
     int error;
@@ -167,7 +167,7 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
 
             correct_figure.line = line;
             correct_figure.Points = Points;
-            correct_figure.vertexes_count = comma_count;
+            correct_figure.points_count = comma_count;
             correct_figure.square = pi * pow(radius, 2);
             correct_figure.perimeter = pi * 2 * radius;
             correct_figure.error = 0;
@@ -211,7 +211,7 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
 
             correct_figure.line = line;
             correct_figure.Points = Points;
-            correct_figure.vertexes_count = comma_count + 1;
+            correct_figure.points_count = comma_count + 1;
             correct_figure.square = sqrt(perimeter / 2 * (perimeter / 2 - a) * (perimeter / 2 - b) * (perimeter / 2 - c));
             correct_figure.perimeter = perimeter;
             correct_figure.error = 0;
@@ -255,7 +255,7 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
 
             correct_figure.line = line;
             correct_figure.Points = Points;
-            correct_figure.vertexes_count = comma_count + 1;
+            correct_figure.points_count = comma_count + 1;
             correct_figure.square = fabs(square / 2);
             correct_figure.perimeter = perimeter;
             correct_figure.error = 0;
