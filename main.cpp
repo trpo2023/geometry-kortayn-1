@@ -131,6 +131,9 @@ void FigureCheck(string line, int *commas, int comma_count, int begin, int end, 
                 << "\nPerimeter = " << pi * 2 * radius << "\n";
         }
 
+        delete commas;
+        delete xy;
+
         return;
     }
 
@@ -156,6 +159,9 @@ void FigureCheck(string line, int *commas, int comma_count, int begin, int end, 
             cout << "\nSquare = " << sqrt(p / 2 * (p / 2 - a) * (p / 2 - b) * (p / 2 - c))
                 << "\nPerimeter = " << p << "\n";
         }
+
+        delete commas;
+        delete xy;
 
         return;
     }
@@ -183,6 +189,9 @@ void FigureCheck(string line, int *commas, int comma_count, int begin, int end, 
             cout << "\nSquare = " << fabs(square / 2)
                 << "\nPerimeter = " << perimeter << "\n";
         }
+
+        delete commas;
+        delete xy;
 
         return;
     }
