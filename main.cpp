@@ -348,12 +348,16 @@ int main()
     {
         cout << "\n" << Figures[i].number << ". " << Figures[i].line << "\n";
         if(Figures[i].line.substr(0, 6) == "circle")
+        {
+            for(int j = 0; j < Figures[i].points_count; j++)
+            cout << "Center Point: (" << Figures[i].Points[j].x << ", " << Figures[i].Points[j].y << ")\n";
             cout << "Radius = " << Figures[i].radius << "\n";
+        }
+        else
+            for(int j = 0; j < Figures[i].points_count; j++)
+                cout << "Point " << j + 1 << ": (" << Figures[i].Points[j].x << ", " << Figures[i].Points[j].y << ")\n";
         cout << "Square = " << Figures[i].square << "\n"
-             << "Perimeter = " << Figures[i].perimeter << "\n"
-             << "Number of points: " << Figures[i].points_count << "\n";
-        for(int j = 0; j < Figures[i].points_count; j++)
-            cout << "Point " << j + 1 << ": (" << Figures[i].Points[j].x << ", " << Figures[i].Points[j].y << ")\n";
+             << "Perimeter = " << Figures[i].perimeter << "\n";
     }
 
     delete Figures;
