@@ -132,16 +132,18 @@ void FigureCheck(string line, int *commas, int comma_count, int begin, int end, 
         }
 
         delete commas;
+
+        return;
     }
+
+    for(int i = commas[comma_count - 1] + 2; i < end; i++)
+        if(line[i] == ' ') space = i;
+
+    error += NumberCheck(line, commas[comma_count - 1] + 2, space);
+    error += NumberCheck(line, space + 1, end);
 
     if(line.substr(0, 8) == "triangle")
     {
-        for(int i = commas[comma_count - 1] + 2; i < end; i++)
-        if(line[i] == ' ') space = i;
-
-        error += NumberCheck(line, commas[comma_count - 1] + 2, space);
-        error += NumberCheck(line, space + 1, end);
-
         if(!error)
         {
             xy[comma_count][0] = stod(line.substr(commas[comma_count - 1] + 2, space));
@@ -156,16 +158,14 @@ void FigureCheck(string line, int *commas, int comma_count, int begin, int end, 
             cout << "\nSquare = " << sqrt(p / 2 * (p / 2 - a) * (p / 2 - b) * (p / 2 - c))
                 << "\nPerimeter = " << p << "\n";
         }
+
+        delete commas;
+
+        return;
     }
 
     if(line.substr(0, 7) == "polygon")
     {
-        for(int i = commas[comma_count - 1] + 2; i < end; i++)
-        if(line[i] == ' ') space = i;
-
-        error += NumberCheck(line, commas[comma_count - 1] + 2, space);
-        error += NumberCheck(line, space + 1, end);
-
         if(!error)
         {
             xy[comma_count][0] = stod(line.substr(commas[comma_count - 1] + 2, space));
@@ -187,9 +187,11 @@ void FigureCheck(string line, int *commas, int comma_count, int begin, int end, 
             cout << "\nSquare = " << fabs(square / 2)
                 << "\nPerimeter = " << perimeter << "\n";
         }
-    }
 
-    delete commas;
+        delete commas;
+
+        return;
+    }
 }
 
 string *Parser(int &lines_count)
