@@ -343,11 +343,11 @@ void Lexer(int lines_count, string *Lines)
     }
 
     for(int i = 0; i < correct_count; i++)
-        {
-            cout << "\n" << Figures[i].number << ". " << Figures[i].line << "\n"
-                 << "Square = " << Figures[i].square << "\n"
-                 << "Perimeter = " << Figures[i].perimeter << "\n";
-        }
+    {
+        cout << "\n" << Figures[i].number << ". " << Figures[i].line << "\n"
+             << "Square = " << Figures[i].square << "\n"
+             << "Perimeter = " << Figures[i].perimeter << "\n";
+    }
 
     delete Lines;
     delete Figures;
