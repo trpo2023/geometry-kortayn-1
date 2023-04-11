@@ -146,8 +146,6 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
             correct_figure.radius = stod(line.substr(Commas[0] + 2, end));
             correct_figure.square = pi * pow(stod(line.substr(Commas[0] + 2, end)), 2);
             correct_figure.perimeter = pi * 2 * stod(line.substr(Commas[0] + 2, end));
-
-            delete Commas;
             return correct_figure;
         }
 
@@ -155,7 +153,6 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
         {
             figure Error;
             Error.error = 1;
-            delete Commas;
             return Error;
         }
     }
@@ -182,8 +179,6 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
             correct_figure.points_count = comma_count + 1;
             correct_figure.square = sqrt((a + b + c) / 2 * ((a + b + c) / 2 - a) * ((a + b + c) / 2 - b) * ((a + b + c) / 2 - c));
             correct_figure.perimeter = (a + b + c);
-
-            delete Commas;
             return correct_figure;
         }
 
@@ -191,7 +186,6 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
         {
             figure Error;
             Error.error = 1;
-            delete Commas;
             return Error;
         }
     }
@@ -219,8 +213,6 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
             correct_figure.points_count = comma_count + 1;
             correct_figure.square = fabs(square / 2);
             correct_figure.perimeter = perimeter;
-
-            delete Commas;
             return correct_figure;
         }
 
@@ -228,14 +220,12 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
         {
             figure Error;
             Error.error = 1;
-            delete Commas;
             return Error;
         }
     }
 
     figure Error;
     Error.error = 1;
-    delete Commas;
     return Error;
 }
 
@@ -274,6 +264,8 @@ figure *Lexer(string *Lines, int lines_count, int &correct_count)
             Figures[correct_count] = input_figure;
             correct_count++;
         }
+
+        delete Commas;
     }
 
     delete Lines;
