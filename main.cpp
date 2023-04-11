@@ -300,6 +300,8 @@ int main()
             cout << "Point " << j + 1 << ": (" << Figures[i].Points[j].x << ", " << Figures[i].Points[j].y << ")\n";
         cout << "Square = " << Figures[i].square << "\n"
              << "Perimeter = " << Figures[i].perimeter << "\n";
+
+        delete Figures[i].Points;
     }
 
     delete Figures;
