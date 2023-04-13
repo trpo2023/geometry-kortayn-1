@@ -144,28 +144,17 @@ figure FigureCheck(string line, int begin, int end, int error)
             correct_figure.radius = stod(line.substr(Commas[0] + 2, end));
             correct_figure.square = pi * pow(stod(line.substr(Commas[0] + 2, end)), 2);
             correct_figure.perimeter = pi * 2 * stod(line.substr(Commas[0] + 2, end));
-
-            delete Commas;
-            return correct_figure;
-        }
-
-        else
-        {
-            figure Error;
-            Error.error = 1;
-            delete Commas;
-            return Error;
         }
     }
 
-    for(int i = Commas[comma_count - 1] + 2; i < end; i++)
-        if(line[i] == ' ') space = i;
-
-    error += NumberCheck(line, Commas[comma_count - 1] + 2, space);
-    error += NumberCheck(line, space + 1, end);
-
     if(line.substr(0, 8) == "triangle")
     {
+        for(int i = Commas[comma_count - 1] + 2; i < end; i++)
+            if(line[i] == ' ') space = i;
+
+        error += NumberCheck(line, Commas[comma_count - 1] + 2, space);
+        error += NumberCheck(line, space + 1, end);
+
         if(!error)
         {
             Points[comma_count].x = stod(line.substr(Commas[comma_count - 1] + 2, space));
@@ -180,22 +169,17 @@ figure FigureCheck(string line, int begin, int end, int error)
             correct_figure.points_count = comma_count + 1;
             correct_figure.square = sqrt((a + b + c) / 2 * ((a + b + c) / 2 - a) * ((a + b + c) / 2 - b) * ((a + b + c) / 2 - c));
             correct_figure.perimeter = (a + b + c);
-
-            delete Commas;
-            return correct_figure;
-        }
-
-        else
-        {
-            figure Error;
-            Error.error = 1;
-            delete Commas;
-            return Error;
         }
     }
 
     if(line.substr(0, 7) == "polygon")
     {
+        for(int i = Commas[comma_count - 1] + 2; i < end; i++)
+            if(line[i] == ' ') space = i;
+
+        error += NumberCheck(line, Commas[comma_count - 1] + 2, space);
+        error += NumberCheck(line, space + 1, end);
+        
         if(!error)
         {
             double perimeter = 0, square = 0;
@@ -217,24 +201,22 @@ figure FigureCheck(string line, int begin, int end, int error)
             correct_figure.points_count = comma_count + 1;
             correct_figure.square = fabs(square / 2);
             correct_figure.perimeter = perimeter;
-
-            delete Commas;
-            return correct_figure;
-        }
-
-        else
-        {
-            figure Error;
-            Error.error = 1;
-            delete Commas;
-            return Error;
         }
     }
 
-    figure Error;
-    Error.error = 1;
-    delete Commas;
-    return Error;
+    if(!error)
+    {
+        delete Commas;
+        return correct_figure;
+    }
+
+    else
+    {
+        figure Error;
+        Error.error = 1;
+        delete Commas;
+        return Error;
+    }
 }
 
 string *Parser(int &lines_count)
