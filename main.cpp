@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+
 #define pi 3.14159265358979323846
 
 using namespace std;
@@ -55,7 +56,7 @@ int WriteCheck(string line, int &open_bracket, int &close_bracket)
         if(line[i] == '(' && open_bracket != 0)
         {
             close_bracket = i;
-
+            
             cout << "\n" << line << "\n";
             for(int j = 0; j < i; j++) cout << " ";
             cout << "^\nError at column " << i << ": expected ')'\n";
@@ -97,25 +98,20 @@ int WriteCheck(string line, int &open_bracket, int &close_bracket)
     return error;
 }
 
-int *CommaCount(string line, int &comma_count, int open_bracket, int close_bracket)
+figure FigureCheck(string line, int begin, int end, int error)
 {
-    for(int i = open_bracket + 1; i < close_bracket; i++)
+    int space,
+        comma_count = 0;
+
+    for(int i = begin + 1; i < end; i++)
         if(line[i] == ',') comma_count++;
 
     int *Commas = new int[comma_count];
 
-    for(int i = open_bracket + 1, j = 0; i < close_bracket; i++)
+    for(int i = begin + 1, j = 0; i < end; i++)
         if(line[i] == ',') Commas[j++] = i;
 
-    return Commas;
-}
-
-figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end, int error)
-{
-    int space;
-
     point *Points = new point[comma_count + 1];
-    figure correct_figure;
 
     for(int i = 0; i < comma_count; i++)
     {
@@ -134,6 +130,8 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
         begin = Commas[i] + 1;
     }
 
+    figure correct_figure;
+
     if(line.substr(0, 6) == "circle")
     {
         error += NumberCheck(line, Commas[0] + 2, end);
@@ -146,6 +144,8 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
             correct_figure.radius = stod(line.substr(Commas[0] + 2, end));
             correct_figure.square = pi * pow(stod(line.substr(Commas[0] + 2, end)), 2);
             correct_figure.perimeter = pi * 2 * stod(line.substr(Commas[0] + 2, end));
+
+            delete Commas;
             return correct_figure;
         }
 
@@ -153,6 +153,7 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
         {
             figure Error;
             Error.error = 1;
+            delete Commas;
             return Error;
         }
     }
@@ -179,6 +180,8 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
             correct_figure.points_count = comma_count + 1;
             correct_figure.square = sqrt((a + b + c) / 2 * ((a + b + c) / 2 - a) * ((a + b + c) / 2 - b) * ((a + b + c) / 2 - c));
             correct_figure.perimeter = (a + b + c);
+
+            delete Commas;
             return correct_figure;
         }
 
@@ -186,6 +189,7 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
         {
             figure Error;
             Error.error = 1;
+            delete Commas;
             return Error;
         }
     }
@@ -213,6 +217,8 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
             correct_figure.points_count = comma_count + 1;
             correct_figure.square = fabs(square / 2);
             correct_figure.perimeter = perimeter;
+
+            delete Commas;
             return correct_figure;
         }
 
@@ -220,12 +226,14 @@ figure FigureCheck(string line, int *Commas, int comma_count, int begin, int end
         {
             figure Error;
             Error.error = 1;
+            delete Commas;
             return Error;
         }
     }
 
     figure Error;
     Error.error = 1;
+    delete Commas;
     return Error;
 }
 
@@ -252,20 +260,16 @@ figure *Lexer(string *Lines, int lines_count, int &correct_count)
     {
         int open_bracket = 0,
             close_bracket = 0,
-            comma_count = 0,
             error = 0;
 
         error = WriteCheck(Lines[i], open_bracket, close_bracket);
-        int *Commas = CommaCount(Lines[i], comma_count, open_bracket, close_bracket);
-        figure input_figure = FigureCheck(Lines[i], Commas, comma_count, open_bracket, close_bracket, error);
+        figure input_figure = FigureCheck(Lines[i], open_bracket, close_bracket, error);
 
         if(input_figure.error != 1)
         {
             Figures[correct_count] = input_figure;
             correct_count++;
         }
-
-        delete Commas;
     }
 
     delete Lines;
