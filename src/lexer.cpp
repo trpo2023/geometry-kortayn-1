@@ -219,9 +219,7 @@ figure* Lexer(string* Lines, int lines_count, int &correct_count)
     for(int i = 0; i < correct_count; i++) Figures[i].intersects = new string[correct_count];
 
     for(int i = 0; i < correct_count; i++)
-    {
         for(int j = i + 1; j < correct_count; j++)
-        {
             if(Figures[i].line.substr(0, 6) == "circle" && Figures[j].line.substr(0, 6) == "circle")
             {
                 double distance = sqrt(pow(Figures[i].Points[0].x - Figures[j].Points[0].x, 2) + pow(Figures[i].Points[0].y - Figures[j].Points[0].y, 2));
@@ -232,8 +230,6 @@ figure* Lexer(string* Lines, int lines_count, int &correct_count)
                     Figures[j].intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". circle";
                 }
             }
-        }
-    }
 
     delete Lines;
     return Figures;
