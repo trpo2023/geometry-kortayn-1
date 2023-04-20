@@ -5,4 +5,4 @@
 
 using namespace std;
 
-string *Parser(int &lines_count);
+string* Parser(int &lines_count);

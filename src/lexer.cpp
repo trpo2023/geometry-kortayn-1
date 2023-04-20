@@ -83,12 +83,12 @@ figure FigureCheck(string line, int begin, int end, int error)
     for(int i = begin + 1; i < end; i++)
         if(line[i] == ',') comma_count++;
 
-    int *Commas = new int[comma_count];
+    int* Commas = new int[comma_count];
 
     for(int i = begin + 1, j = 0; i < end; i++)
         if(line[i] == ',') Commas[j++] = i;
 
-    point *Points = new point[comma_count + 1];
+    point* Points = new point[comma_count + 1];
 
     for(int i = 0; i < comma_count; i++)
     {
@@ -121,6 +121,7 @@ figure FigureCheck(string line, int begin, int end, int error)
             correct_figure.radius = stod(line.substr(Commas[0] + 2, end));
             correct_figure.square = M_PI * pow(stod(line.substr(Commas[0] + 2, end)), 2);
             correct_figure.perimeter = M_PI * 2 * stod(line.substr(Commas[0] + 2, end));
+            correct_figure.intersects_count = 0;
         }
     }
 
@@ -146,6 +147,7 @@ figure FigureCheck(string line, int begin, int end, int error)
             correct_figure.points_count = comma_count + 1;
             correct_figure.square = sqrt((a + b + c) / 2 * ((a + b + c) / 2 - a) * ((a + b + c) / 2 - b) * ((a + b + c) / 2 - c));
             correct_figure.perimeter = (a + b + c);
+            correct_figure.intersects_count = 0;
         }
     }
 
@@ -178,6 +180,7 @@ figure FigureCheck(string line, int begin, int end, int error)
             correct_figure.points_count = comma_count + 1;
             correct_figure.square = fabs(square / 2);
             correct_figure.perimeter = perimeter;
+            correct_figure.intersects_count = 0;
         }
     }
 
@@ -196,9 +199,9 @@ figure FigureCheck(string line, int begin, int end, int error)
     }
 }
 
-figure *Lexer(string *Lines, int lines_count, int &correct_count)
+figure* Lexer(string* Lines, int lines_count, int &correct_count)
 {
-    figure *Figures = new figure[lines_count];
+    figure* Figures = new figure[lines_count];
 
     for(int i = 0; i < lines_count; i++)
     {
@@ -210,9 +213,25 @@ figure *Lexer(string *Lines, int lines_count, int &correct_count)
         figure input_figure = FigureCheck(Lines[i], open_bracket, close_bracket, error);
 
         if(input_figure.error != 1)
+            Figures[correct_count++] = input_figure;
+    }
+
+    for(int i = 0; i < correct_count; i++) Figures[i].intersects = new string[correct_count];
+
+    for(int i = 0; i < correct_count; i++)
+    {
+        for(int j = i + 1; j < correct_count; j++)
         {
-            Figures[correct_count] = input_figure;
-            correct_count++;
+            if(Figures[i].line.substr(0, 6) == "circle" && Figures[j].line.substr(0, 6) == "circle")
+            {
+                double distance = sqrt(pow(Figures[i].Points[0].x - Figures[j].Points[0].x, 2)
+                                     + pow(Figures[i].Points[0].y - Figures[j].Points[0].y, 2));
+                if(Figures[i].radius + Figures[j].radius > distance)
+                {
+                    Figures[i].intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". circle";
+                    Figures[j].intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". circle";
+                }
+            }
         }
     }
 
