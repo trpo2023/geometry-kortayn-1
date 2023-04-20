@@ -1,27 +1,4 @@
-#include <iostream>
-#include <fstream>
-#include <cmath>
-
-#define pi 3.14159265358979323846
-
-using namespace std;
-
-struct point
-{
-    double x;
-    double y;
-};
-
-struct figure
-{
-    string line;
-    point *Points;
-    int points_count;
-    double radius;
-    double square;
-    double perimeter;
-    int error;
-};
+#include "lexer.hpp"
 
 int NumberCheck(string line, int begin, int end)
 {
@@ -142,8 +119,8 @@ figure FigureCheck(string line, int begin, int end, int error)
             correct_figure.Points = Points;
             correct_figure.points_count = comma_count;
             correct_figure.radius = stod(line.substr(Commas[0] + 2, end));
-            correct_figure.square = pi * pow(stod(line.substr(Commas[0] + 2, end)), 2);
-            correct_figure.perimeter = pi * 2 * stod(line.substr(Commas[0] + 2, end));
+            correct_figure.square = M_PI * pow(stod(line.substr(Commas[0] + 2, end)), 2);
+            correct_figure.perimeter = M_PI * 2 * stod(line.substr(Commas[0] + 2, end));
         }
     }
 
@@ -219,21 +196,6 @@ figure FigureCheck(string line, int begin, int end, int error)
     }
 }
 
-string *Parser(int &lines_count)
-{
-    ifstream file("test.txt");
-    string line;
-    while(getline(file, line)) lines_count++;
-
-    file.clear();
-    file.seekg(0);
-
-    string *Lines = new string[lines_count];
-    for(int i = 0; i < lines_count; i++) getline(file, Lines[i]);
-
-    return Lines;
-}
-
 figure *Lexer(string *Lines, int lines_count, int &correct_count)
 {
     figure *Figures = new figure[lines_count];
@@ -256,32 +218,4 @@ figure *Lexer(string *Lines, int lines_count, int &correct_count)
 
     delete Lines;
     return Figures;
-}
-
-int main()
-{
-    int lines_count = 0, correct_count = 0;
-
-    string *Lines = Parser(lines_count);
-    figure *Figures = Lexer(Lines, lines_count, correct_count);
-
-    for(int i = 0; i < correct_count; i++)
-    {
-        cout << "\n" << i + 1 << ". " << Figures[i].line << "\n";
-        if(Figures[i].line.substr(0, 6) == "circle")
-        {
-            for(int j = 0; j < Figures[i].points_count; j++)
-            cout << "Center Point: (" << Figures[i].Points[j].x << ", " << Figures[i].Points[j].y << ")\n";
-            cout << "Radius = " << Figures[i].radius << "\n";
-        }
-        else for(int j = 0; j < Figures[i].points_count; j++)
-            cout << "Point " << j + 1 << ": (" << Figures[i].Points[j].x << ", " << Figures[i].Points[j].y << ")\n";
-        cout << "Square = " << Figures[i].square << "\n"
-             << "Perimeter = " << Figures[i].perimeter << "\n";
-
-        delete Figures[i].Points;
-    }
-
-    delete Figures;
-    return 0;
 }
