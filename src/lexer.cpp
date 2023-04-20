@@ -224,8 +224,8 @@ figure* Lexer(string* Lines, int lines_count, int &correct_count)
         {
             if(Figures[i].line.substr(0, 6) == "circle" && Figures[j].line.substr(0, 6) == "circle")
             {
-                double distance = sqrt(pow(Figures[i].Points[0].x - Figures[j].Points[0].x, 2)
-                                     + pow(Figures[i].Points[0].y - Figures[j].Points[0].y, 2));
+                double distance = sqrt(pow(Figures[i].Points[0].x - Figures[j].Points[0].x, 2) + pow(Figures[i].Points[0].y - Figures[j].Points[0].y, 2));
+
                 if(Figures[i].radius + Figures[j].radius > distance)
                 {
                     Figures[i].intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". circle";
