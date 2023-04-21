@@ -19,7 +19,7 @@ struct figure
     double radius;
     double square;
     double perimeter;
-    string* intersects;
+    string* Intersects;
     int intersects_count;
     int error;
 };

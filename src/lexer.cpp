@@ -125,33 +125,7 @@ figure FigureCheck(string line, int begin, int end, int error)
         }
     }
 
-    if(line.substr(0, 8) == "triangle")
-    {
-        for(int i = Commas[comma_count - 1] + 2; i < end; i++)
-            if(line[i] == ' ') space = i;
-
-        error += NumberCheck(line, Commas[comma_count - 1] + 2, space);
-        error += NumberCheck(line, space + 1, end);
-
-        if(!error)
-        {
-            Points[comma_count].x = stod(line.substr(Commas[comma_count - 1] + 2, space));
-            Points[comma_count].y = stod(line.substr(space + 1, end));
-
-            double a = sqrt(pow((Points[1].x - Points[0].x), 2) + pow((Points[1].y - Points[0].y), 2));
-            double b = sqrt(pow((Points[2].x - Points[1].x), 2) + pow((Points[2].y - Points[1].y), 2));
-            double c = sqrt(pow((Points[0].x - Points[2].x), 2) + pow((Points[0].y - Points[2].y), 2));
-
-            correct_figure.line = line;
-            correct_figure.Points = Points;
-            correct_figure.points_count = comma_count + 1;
-            correct_figure.square = sqrt((a + b + c) / 2 * ((a + b + c) / 2 - a) * ((a + b + c) / 2 - b) * ((a + b + c) / 2 - c));
-            correct_figure.perimeter = (a + b + c);
-            correct_figure.intersects_count = 0;
-        }
-    }
-
-    if(line.substr(0, 7) == "polygon")
+    else
     {
         for(int i = Commas[comma_count - 1] + 2; i < end; i++)
             if(line[i] == ' ') space = i;
@@ -216,7 +190,7 @@ figure* Lexer(string* Lines, int lines_count, int &correct_count)
             Figures[correct_count++] = input_figure;
     }
 
-    for(int i = 0; i < correct_count; i++) Figures[i].intersects = new string[correct_count];
+    for(int i = 0; i < correct_count; i++) Figures[i].Intersects = new string[correct_count];
 
     for(int i = 0; i < correct_count; i++)
         for(int j = i + 1; j < correct_count; j++)
@@ -226,8 +200,8 @@ figure* Lexer(string* Lines, int lines_count, int &correct_count)
 
                 if(Figures[i].radius + Figures[j].radius > distance)
                 {
-                    Figures[i].intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". circle";
-                    Figures[j].intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". circle";
+                    Figures[i].Intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". circle";
+                    Figures[j].Intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". circle";
                 }
             }
 

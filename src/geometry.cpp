@@ -10,18 +10,15 @@ int main()
 
     for(int i = 0; i < correct_count; i++)
     {
-        cout << "\n" << i + 1 << ". " << Figures[i].line << "\n";
-        cout << "Square = " << Figures[i].square << "\n"
-             << "Perimeter = " << Figures[i].perimeter << "\n";
-             
-        if(Figures[i].line.substr(0, 6) == "circle")
-        {
-            cout << "Intersects:\n";
-            for(int k = 0; k < Figures[i].intersects_count; k++)
-                cout << "\t" << Figures[i].intersects[k] << "\n";
-        }
+        cout << "\n" << i + 1 << ". " << Figures[i].line << "\n"
+             << "Square = " << Figures[i].square << "\n"
+             << "Perimeter = " << Figures[i].perimeter << "\n"
+             << "Intersects:\n";
+        for(int k = 0; k < Figures[i].intersects_count; k++)
+            cout << "\t" << Figures[i].Intersects[k] << "\n";
 
         delete Figures[i].Points;
+        delete Figures[i].Intersects;
     }
 
     delete Figures;
