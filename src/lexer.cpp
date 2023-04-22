@@ -215,7 +215,7 @@ void Intersect(figure* Figures, int correct_count)
                 }
             }
 
-            else if(Figures[i].line.substr(0, 7) == "polygon" && Figures[j].line.substr(0, 7) == "polygon")
+            if(Figures[i].line.substr(0, 7) == "polygon" && Figures[j].line.substr(0, 7) == "polygon")
             {
                 bool intersect = 0;
 
@@ -232,40 +232,37 @@ void Intersect(figure* Figures, int correct_count)
                     }
             }
 
-            else
+            if(Figures[i].line.substr(0, 7) == "polygon" && Figures[j].line.substr(0, 6) == "circle") 
             {
-                if(Figures[i].line.substr(0, 7) == "polygon") 
-                {
-                    bool intersect = 0;
+                bool intersect = 0;
 
-                    for(int k = 0; k < Figures[i].points_count - 1; k++) 
-                        if(Distance(Figures, i, j, k) < Figures[j].radius) intersect = 1;
+                for(int k = 0; k < Figures[i].points_count - 1; k++) 
+                    if(Distance(Figures, i, j, k) < Figures[j].radius) intersect = 1;
                     
-                    if(Distance(Figures, i, j, 0) < Figures[j].radius
-                    || InsidePolygon(Figures[j].Points[0], Figures[i])) intersect = 1;
+                if(Distance(Figures, i, j, 0) < Figures[j].radius
+                || InsidePolygon(Figures[j].Points[0], Figures[i])) intersect = 1;
 
-                    if(intersect)
-                    {
-                        Figures[i].Intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". circle";
-                        Figures[j].Intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". polygon"; 
-                    }
-                }
-
-                else
+                if(intersect)
                 {
-                    bool intersect = 0;
-
-                    for(int k = 0; k < Figures[j].points_count - 1; k++)  
-                        if(Distance(Figures, j, i, k) < Figures[i].radius) intersect = 1;
-
-                    if(Distance(Figures, j, i, 0) < Figures[i].radius
-                    || InsidePolygon(Figures[i].Points[0], Figures[j])) intersect = 1;
-
-                    if(intersect)
-                    {
-                        Figures[i].Intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". polygon";
-                        Figures[j].Intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". circle"; 
+                    Figures[i].Intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". circle";
+                    Figures[j].Intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". polygon"; 
                     }
+            }
+
+            if(Figures[i].line.substr(0, 6) == "circle" && Figures[j].line.substr(0, 7) == "polygon")
+            {
+                bool intersect = 0;
+
+                for(int k = 0; k < Figures[j].points_count - 1; k++)  
+                    if(Distance(Figures, j, i, k) < Figures[i].radius) intersect = 1;
+
+                if(Distance(Figures, j, i, 0) < Figures[i].radius
+                || InsidePolygon(Figures[i].Points[0], Figures[j])) intersect = 1;
+
+                if(intersect)
+                {
+                    Figures[i].Intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". polygon";
+                    Figures[j].Intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". circle"; 
                 }
             }
         }
