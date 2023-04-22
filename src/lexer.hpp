@@ -24,7 +24,13 @@ struct figure
     int error;
 };
 
-int NumberCheck(string line, int begin, int end);
-int WriteCheck(string line, int &open_bracket, int &close_bracket);
-figure FigureCheck(string line, int begin, int end, int error);
+void NumberCheck(string line, int begin, int end, int &error);
+void WriteCheck(string line, int &open_bracket, int &close_bracket, int &error);
+figure FigureCheck(string line, int begin, int end, int &error);
+double TriangleSquare(point a, point b, point c);
+bool SegmentsCoincidence(int a, int b, int c, int d);
+bool SegmentsIntersect(point a, point b, point c, point d);
+bool InsidePolygon(point vertex, figure polygon);
+double Distance(figure* Figures, int i, int j, int k);
+void Intersect(figure* Figures, int correct_count);
 figure* Lexer(string* Lines, int lines_count, int &correct_count);

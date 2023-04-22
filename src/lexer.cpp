@@ -1,17 +1,18 @@
 #include "lexer.hpp"
 
-int NumberCheck(string line, int begin, int end)
+void NumberCheck(string line, int begin, int end, int &error)
 {
     int dot_count = 0,
-        error = 0;
+        minus_count = 0;
 
     for(int i = begin; i < end; i++)
     {
         if(line[i] == '.') dot_count++;
+        if(line[i] == '-') minus_count++;
 
-        if(((isdigit(line[i]) == 0 && line[i] != '.') ||
-            (line[begin] == '0' && isdigit(line[begin + 1]) != 0) ||
-            dot_count > 1))
+        if((isdigit(line[i]) == 0 && line[i] != '.' && line[i] != '-')
+        || (line[begin] == '0' && isdigit(line[begin + 1]) != 0)
+        || dot_count > 1 || minus_count > 1)
         {
             cout << "\n" << line << "\n";
             for(int j = 0; j < i; j++) cout << " ";
@@ -20,20 +21,15 @@ int NumberCheck(string line, int begin, int end)
             break;
         }
     }
-
-    return error;
 }
 
-int WriteCheck(string line, int &open_bracket, int &close_bracket)
+void WriteCheck(string line, int &open_bracket, int &close_bracket, int &error)
 {
-    int error = 0;
-
     for(int i = 0; i < int(line.length()); i++)
     {
         if(line[i] == '(' && open_bracket != 0)
         {
             close_bracket = i;
-            
             cout << "\n" << line << "\n";
             for(int j = 0; j < i; j++) cout << " ";
             cout << "^\nError at column " << i << ": expected ')'\n";
@@ -45,7 +41,6 @@ int WriteCheck(string line, int &open_bracket, int &close_bracket)
         if(line[i] == ')' && open_bracket == 0)
         {
             open_bracket = i;
-
             cout << "\n" << line << "\n";
             for(int j = 0; j < i; j++) cout << " ";
             cout << "^\nError at column " << i << ": expected '('\n";
@@ -55,9 +50,9 @@ int WriteCheck(string line, int &open_bracket, int &close_bracket)
         else if(line[i] == ')' && close_bracket == 0) close_bracket = i;
     }
 
-    if(line.substr(0, open_bracket) != "circle" &&
-        line.substr(0, open_bracket) != "triangle" &&
-        line.substr(0, open_bracket) != "polygon")
+    if(line.substr(0, open_bracket) != "circle"
+    && line.substr(0, open_bracket) != "triangle"
+    && line.substr(0, open_bracket) != "polygon")
     {
         cout << "\n" << line << "\n";
         cout << "^\nError at column 0: expected 'circle', 'triangle' or 'polygon'\n";
@@ -71,11 +66,9 @@ int WriteCheck(string line, int &open_bracket, int &close_bracket)
         cout << "^\nError at column " << close_bracket + 1 << ": unexpected tokens\n";
         error++;
     }
-
-    return error;
 }
 
-figure FigureCheck(string line, int begin, int end, int error)
+figure FigureCheck(string line, int begin, int end, int &error)
 {
     int space,
         comma_count = 0;
@@ -95,8 +88,8 @@ figure FigureCheck(string line, int begin, int end, int error)
         for(int j = begin + 1; j < Commas[i]; j++)
             if(line[j] == ' ') space = j;
 
-        error += NumberCheck(line, begin + 1, space);
-        error += NumberCheck(line, space + 1, Commas[i]);
+        NumberCheck(line, begin + 1, space, error);
+        NumberCheck(line, space + 1, Commas[i], error);
 
         if(!error)
         {
@@ -111,7 +104,7 @@ figure FigureCheck(string line, int begin, int end, int error)
 
     if(line.substr(0, 6) == "circle")
     {
-        error += NumberCheck(line, Commas[0] + 2, end);
+        NumberCheck(line, Commas[0] + 2, end, error);
 
         if(!error)
         {
@@ -130,8 +123,8 @@ figure FigureCheck(string line, int begin, int end, int error)
         for(int i = Commas[comma_count - 1] + 2; i < end; i++)
             if(line[i] == ' ') space = i;
 
-        error += NumberCheck(line, Commas[comma_count - 1] + 2, space);
-        error += NumberCheck(line, space + 1, end);
+        NumberCheck(line, Commas[comma_count - 1] + 2, space, error);
+        NumberCheck(line, space + 1, end, error);
         
         if(!error)
         {
@@ -173,6 +166,131 @@ figure FigureCheck(string line, int begin, int end, int error)
     }
 }
 
+double TriangleSquare(point a, point b, point c)
+{
+	return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+}
+
+bool SegmentsCoincidence(int a, int b, int c, int d)
+{
+	if(a > b) swap(a, b);
+	if(c > d) swap(c, d);
+	return max(a, c) <= min(b, d);
+}
+ 
+bool SegmentsIntersect(point a, point b, point c, point d)
+{
+	return SegmentsCoincidence(a.x, b.x, c.x, d.x)
+		&& SegmentsCoincidence(a.y, b.y, c.y, d.y)
+        && TriangleSquare(a, b, c) * TriangleSquare(a, b, d) <= 0
+		&& TriangleSquare(c, d, a) * TriangleSquare(c, d, b) <= 0;
+}
+
+bool InsidePolygon(point vertex, figure polygon)
+{
+    int count = 0;
+
+    for(int i = 0; i < polygon.points_count; i++)
+    {
+        point p1 = polygon.Points[i];
+        point p2 = polygon.Points[(i + 1) % polygon.points_count];
+
+        if(vertex.y > min(p1.y, p2.y)
+        && vertex.y <= max(p1.y, p2.y)
+        && vertex.x <= max(p1.x, p2.x)
+        && p1.y != p2.y)
+        {
+            int xIntersection = (vertex.y - p1.y) * (p2.x - p1.x) / (p2.y - p1.y) + p1.x;
+            if(p1.x == p2.x || vertex.x <= xIntersection) count++;
+        }
+    }
+
+    return count % 2 == 1;
+}
+
+double Distance(figure* Figures, int i, int j, int k)
+{
+    return fabs((Figures[i].Points[k + 1].y - Figures[i].Points[k].y) * Figures[j].Points[0].x
+              - (Figures[i].Points[k + 1].x - Figures[i].Points[k].x) * Figures[j].Points[0].y
+              + Figures[i].Points[k + 1].x * Figures[i].Points[k].y
+              - Figures[i].Points[k + 1].y * Figures[i].Points[k].x)
+              / sqrt(pow((Figures[i].Points[k + 1].y - Figures[i].Points[k].y), 2)
+              + pow((Figures[i].Points[k + 1].x - Figures[i].Points[k].x), 2));
+}
+
+void Intersect(figure* Figures, int correct_count)
+{
+    for(int i = 0; i < correct_count; i++)
+        for(int j = i + 1; j < correct_count; j++)
+        {
+            if(Figures[i].line.substr(0, 6) == "circle" && Figures[j].line.substr(0, 6) == "circle")
+            {
+                double distance = sqrt(pow(Figures[i].Points[0].x - Figures[j].Points[0].x, 2)
+                                     + pow(Figures[i].Points[0].y - Figures[j].Points[0].y, 2));
+
+                if(Figures[i].radius + Figures[j].radius > distance)
+                {
+                    Figures[i].Intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". circle";
+                    Figures[j].Intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". circle";
+                }
+            }
+
+            else if(Figures[i].line.substr(0, 7) == "polygon" && Figures[j].line.substr(0, 7) == "polygon")
+            {
+                bool intersect = 0;
+
+                for(int k = 0; k < Figures[i].points_count; k++)
+                    if(InsidePolygon(Figures[i].Points[k], Figures[j])) intersect = 1;
+
+                for(int k = 0; k < Figures[j].points_count; k++)
+                    if(InsidePolygon(Figures[j].Points[k], Figures[i])) intersect = 1;
+
+                if(intersect)
+                    {
+                        Figures[i].Intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". polygon";
+                        Figures[j].Intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". polygon"; 
+                    }
+            }
+
+            else
+            {
+                if(Figures[i].line.substr(0, 7) == "polygon") 
+                {
+                    bool intersect = 0;
+
+                    for(int k = 0; k < Figures[i].points_count - 1; k++) 
+                        if(Distance(Figures, i, j, k) < Figures[j].radius) intersect = 1;
+                    
+                    if(Distance(Figures, i, j, 0) < Figures[j].radius
+                    || InsidePolygon(Figures[j].Points[0], Figures[i])) intersect = 1;
+
+                    if(intersect)
+                    {
+                        Figures[i].Intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". circle";
+                        Figures[j].Intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". polygon"; 
+                    }
+                }
+
+                else
+                {
+                    bool intersect = 0;
+
+                    for(int k = 0; k < Figures[j].points_count - 1; k++)  
+                        if(Distance(Figures, j, i, k) < Figures[i].radius) intersect = 1;
+
+                    if(Distance(Figures, j, i, 0) < Figures[i].radius
+                    || InsidePolygon(Figures[i].Points[0], Figures[j])) intersect = 1;
+
+                    if(intersect)
+                    {
+                        Figures[i].Intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". polygon";
+                        Figures[j].Intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". circle"; 
+                    }
+                }
+            }
+        }
+}
+
 figure* Lexer(string* Lines, int lines_count, int &correct_count)
 {
     figure* Figures = new figure[lines_count];
@@ -183,7 +301,7 @@ figure* Lexer(string* Lines, int lines_count, int &correct_count)
             close_bracket = 0,
             error = 0;
 
-        error = WriteCheck(Lines[i], open_bracket, close_bracket);
+        WriteCheck(Lines[i], open_bracket, close_bracket, error);
         figure input_figure = FigureCheck(Lines[i], open_bracket, close_bracket, error);
 
         if(input_figure.error != 1)
@@ -192,18 +310,7 @@ figure* Lexer(string* Lines, int lines_count, int &correct_count)
 
     for(int i = 0; i < correct_count; i++) Figures[i].Intersects = new string[correct_count];
 
-    for(int i = 0; i < correct_count; i++)
-        for(int j = i + 1; j < correct_count; j++)
-            if(Figures[i].line.substr(0, 6) == "circle" && Figures[j].line.substr(0, 6) == "circle")
-            {
-                double distance = sqrt(pow(Figures[i].Points[0].x - Figures[j].Points[0].x, 2) + pow(Figures[i].Points[0].y - Figures[j].Points[0].y, 2));
-
-                if(Figures[i].radius + Figures[j].radius > distance)
-                {
-                    Figures[i].Intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". circle";
-                    Figures[j].Intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". circle";
-                }
-            }
+    Intersect(Figures, correct_count);
 
     delete Lines;
     return Figures;

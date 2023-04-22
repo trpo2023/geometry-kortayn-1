@@ -14,8 +14,8 @@ int main()
              << "Square = " << Figures[i].square << "\n"
              << "Perimeter = " << Figures[i].perimeter << "\n"
              << "Intersects:\n";
-        for(int k = 0; k < Figures[i].intersects_count; k++)
-            cout << "\t" << Figures[i].Intersects[k] << "\n";
+        for(int j = 0; j < Figures[i].intersects_count; j++)
+            cout << "\t" << Figures[i].Intersects[j] << "\n";
 
         delete Figures[i].Points;
         delete Figures[i].Intersects;
