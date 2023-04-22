@@ -11,8 +11,8 @@ void NumberCheck(string line, int begin, int end, int &error)
         if(line[i] == '-') minus_count++;
 
         if((isdigit(line[i]) == 0 && line[i] != '.' && line[i] != '-')
-            || (line[begin] == '0' && isdigit(line[begin + 1]) != 0)
-            || dot_count > 1 || minus_count > 1)
+        || (line[begin] == '0' && isdigit(line[begin + 1]) != 0)
+        || dot_count > 1 || minus_count > 1)
         {
             cout << "\n" << line << "\n";
             for(int j = 0; j < i; j++) cout << " ";
@@ -30,7 +30,6 @@ void WriteCheck(string line, int &open_bracket, int &close_bracket, int &error)
         if(line[i] == '(' && open_bracket != 0)
         {
             close_bracket = i;
-            
             cout << "\n" << line << "\n";
             for(int j = 0; j < i; j++) cout << " ";
             cout << "^\nError at column " << i << ": expected ')'\n";
@@ -42,7 +41,6 @@ void WriteCheck(string line, int &open_bracket, int &close_bracket, int &error)
         if(line[i] == ')' && open_bracket == 0)
         {
             open_bracket = i;
-
             cout << "\n" << line << "\n";
             for(int j = 0; j < i; j++) cout << " ";
             cout << "^\nError at column " << i << ": expected '('\n";
@@ -53,8 +51,8 @@ void WriteCheck(string line, int &open_bracket, int &close_bracket, int &error)
     }
 
     if(line.substr(0, open_bracket) != "circle"
-        && line.substr(0, open_bracket) != "triangle"
-        && line.substr(0, open_bracket) != "polygon")
+    && line.substr(0, open_bracket) != "triangle"
+    && line.substr(0, open_bracket) != "polygon")
     {
         cout << "\n" << line << "\n";
         cout << "^\nError at column 0: expected 'circle', 'triangle' or 'polygon'\n";
@@ -192,17 +190,18 @@ bool InsidePolygon(point vertex, figure polygon)
 {
     int count = 0;
 
-    for (int i = 0; i < polygon.points_count; i++)
+    for(int i = 0; i < polygon.points_count; i++)
     {
         point p1 = polygon.Points[i];
         point p2 = polygon.Points[(i + 1) % polygon.points_count];
-        if (vertex.y > min(p1.y, p2.y) && vertex.y <= max(p1.y, p2.y) &&
-            vertex.x <= max(p1.x, p2.x) && p1.y != p2.y)
-            {
+
+        if(vertex.y > min(p1.y, p2.y)
+        && vertex.y <= max(p1.y, p2.y)
+        && vertex.x <= max(p1.x, p2.x)
+        && p1.y != p2.y)
+        {
             int xIntersection = (vertex.y - p1.y) * (p2.x - p1.x) / (p2.y - p1.y) + p1.x;
-            
-            if (p1.x == p2.x || vertex.x <= xIntersection)
-                count++;
+            if(p1.x == p2.x || vertex.x <= xIntersection) count++;
         }
     }
 
