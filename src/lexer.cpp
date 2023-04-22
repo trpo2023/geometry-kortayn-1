@@ -188,6 +188,27 @@ bool SegmentsIntersect(point a, point b, point c, point d)
 		&& TriangleSquare(c, d, a) * TriangleSquare(c, d, b) <= 0;
 }
 
+bool InsidePolygon(point vertex, figure polygon)
+{
+    int count = 0;
+
+    for (int i = 0; i < polygon.points_count; i++)
+    {
+        point p1 = polygon.Points[i];
+        point p2 = polygon.Points[(i + 1) % polygon.points_count];
+        if (vertex.y > min(p1.y, p2.y) && vertex.y <= max(p1.y, p2.y) &&
+            vertex.x <= max(p1.x, p2.x) && p1.y != p2.y)
+            {
+            int xIntersection = (vertex.y - p1.y) * (p2.x - p1.x) / (p2.y - p1.y) + p1.x;
+            
+            if (p1.x == p2.x || vertex.x <= xIntersection)
+                count++;
+        }
+    }
+
+    return count % 2 == 1;
+}
+
 double Distance(figure* Figures, int i, int j, int k)
 {
     return fabs((Figures[i].Points[k + 1].y - Figures[i].Points[k].y) * Figures[j].Points[0].x
@@ -219,18 +240,12 @@ void Intersect(figure* Figures, int correct_count)
             {
                 bool intersect = 0;
 
-                for(int k = 0; k < Figures[i].points_count - 1; k++)
-                    for(int l = 0; l < Figures[j].points_count - 1; l++)
-                        if(SegmentsIntersect(Figures[i].Points[k],
-                                            Figures[i].Points[k + 1],
-                                            Figures[j].Points[l],
-                                            Figures[j].Points[l + 1])) intersect = 1;
+                for(int k = 0; k < Figures[i].points_count; k++)
+                    if(InsidePolygon(Figures[i].Points[k], Figures[j])) intersect = 1;
 
-                if(SegmentsIntersect(Figures[i].Points[Figures[i].points_count - 1],
-                                    Figures[i].Points[0],
-                                    Figures[j].Points[Figures[j].points_count - 1],
-                                    Figures[j].Points[0])) intersect = 1;
-                        
+                for(int k = 0; k < Figures[j].points_count; k++)
+                    if(InsidePolygon(Figures[j].Points[k], Figures[i])) intersect = 1;
+
                 if(intersect)
                     {
                         Figures[i].Intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". polygon";
@@ -247,7 +262,8 @@ void Intersect(figure* Figures, int correct_count)
                     for(int k = 0; k < Figures[i].points_count - 1; k++) 
                         if(Distance(Figures, i, j, k) < Figures[j].radius) intersect = 1;
                     
-                    if(Distance(Figures, i, j, 0) < Figures[j].radius) intersect = 1;
+                    if(Distance(Figures, i, j, 0) < Figures[j].radius
+                    || InsidePolygon(Figures[j].Points[0], Figures[i])) intersect = 1;
 
                     if(intersect)
                     {
@@ -263,7 +279,8 @@ void Intersect(figure* Figures, int correct_count)
                     for(int k = 0; k < Figures[j].points_count - 1; k++)  
                         if(Distance(Figures, j, i, k) < Figures[i].radius) intersect = 1;
 
-                    if(Distance(Figures, j, i, 0) < Figures[i].radius) intersect = 1;
+                    if(Distance(Figures, j, i, 0) < Figures[i].radius
+                    || InsidePolygon(Figures[i].Points[0], Figures[j])) intersect = 1;
 
                     if(intersect)
                     {
