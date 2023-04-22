@@ -221,12 +221,12 @@ void Intersect(figure* Figures, int correct_count)
 
                 for(int k = 0; k < Figures[i].points_count - 1; k++)
                     for(int l = 0; l < Figures[j].points_count - 1; l++)
-                        if(SegmentIntersect(Figures[i].Points[k],
+                        if(SegmentsIntersect(Figures[i].Points[k],
                                             Figures[i].Points[k + 1],
                                             Figures[j].Points[l],
                                             Figures[j].Points[l + 1])) intersect = 1;
 
-                if(SegmentIntersect(Figures[i].Points[Figures[i].points_count - 1],
+                if(SegmentsIntersect(Figures[i].Points[Figures[i].points_count - 1],
                                     Figures[i].Points[0],
                                     Figures[j].Points[Figures[j].points_count - 1],
                                     Figures[j].Points[0])) intersect = 1;
