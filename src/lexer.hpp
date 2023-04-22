@@ -29,5 +29,6 @@ void WriteCheck(string line, int &open_bracket, int &close_bracket, int &error);
 figure FigureCheck(string line, int begin, int end, int &error);
 double TriangleSquare(point a, point b, point c);
 bool SegmentIntersect(point a, point b, point c, point d);
-void Intersect(figure *Figures, int correct_count);
+double Distance(figure* Figures, int i, int j, int k);
+void Intersect(figure* Figures, int correct_count);
 figure* Lexer(string* Lines, int lines_count, int &correct_count);

@@ -2,15 +2,17 @@
 
 void NumberCheck(string line, int begin, int end, int &error)
 {
-    int dot_count = 0;
+    int dot_count = 0,
+        minus_count = 0;
 
     for(int i = begin; i < end; i++)
     {
         if(line[i] == '.') dot_count++;
+        if(line[i] == '-') minus_count++;
 
-        if(((isdigit(line[i]) == 0 && line[i] != '.')
+        if((isdigit(line[i]) == 0 && line[i] != '.' && line[i] != '-')
             || (line[begin] == '0' && isdigit(line[begin + 1]) != 0)
-            || dot_count > 1))
+            || dot_count > 1 || minus_count > 1)
         {
             cout << "\n" << line << "\n";
             for(int j = 0; j < i; j++) cout << " ";
@@ -177,7 +179,17 @@ bool SegmentIntersect(point a, point b, point c, point d)
 		&& TriangleSquare(c, d, a) * TriangleSquare(c, d, b) <= 0;
 }
 
-void Intersect(figure *Figures, int correct_count)
+double Distance(figure* Figures, int i, int j, int k)
+{
+    return fabs((Figures[i].Points[k + 1].y - Figures[i].Points[k].y) * Figures[j].Points[0].x
+              - (Figures[i].Points[k + 1].x - Figures[i].Points[k].x) * Figures[j].Points[0].y
+              + Figures[i].Points[k + 1].x * Figures[i].Points[k].y
+              - Figures[i].Points[k + 1].y * Figures[i].Points[k].x)
+              / sqrt(pow((Figures[i].Points[k + 1].y - Figures[i].Points[k].y), 2)
+              + pow((Figures[i].Points[k + 1].x - Figures[i].Points[k].x), 2));
+}
+
+void Intersect(figure* Figures, int correct_count)
 {
     for(int i = 0; i < correct_count; i++)
         for(int j = i + 1; j < correct_count; j++)
@@ -194,7 +206,7 @@ void Intersect(figure *Figures, int correct_count)
                 }
             }
 
-            if(Figures[i].line.substr(0, 7) == "polygon" && Figures[j].line.substr(0, 7) == "polygon")
+            else if(Figures[i].line.substr(0, 7) == "polygon" && Figures[j].line.substr(0, 7) == "polygon")
             {
                 bool intersect = 0;
 
@@ -215,6 +227,41 @@ void Intersect(figure *Figures, int correct_count)
                         Figures[i].Intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". polygon";
                         Figures[j].Intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". polygon"; 
                     }
+            }
+
+            else
+            {
+                if(Figures[i].line.substr(0, 7) == "polygon") 
+                {
+                    bool intersect = 0;
+
+                    for(int k = 0; k < Figures[i].points_count - 1; k++) 
+                        if(Distance(Figures, i, j, k) < Figures[j].radius) intersect = 1;
+                    
+                    if(Distance(Figures, i, j, 0) < Figures[j].radius) intersect = 1;
+
+                    if(intersect)
+                    {
+                        Figures[i].Intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". circle";
+                        Figures[j].Intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". polygon"; 
+                    }
+                }
+
+                else
+                {
+                    bool intersect = 0;
+
+                    for(int k = 0; k < Figures[j].points_count - 1; k++)  
+                        if(Distance(Figures, j, i, k) < Figures[i].radius) intersect = 1;
+
+                    if(Distance(Figures, j, i, 0) < Figures[i].radius) intersect = 1;
+
+                    if(intersect)
+                    {
+                        Figures[i].Intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". polygon";
+                        Figures[j].Intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". circle"; 
+                    }
+                }
             }
         }
 }
