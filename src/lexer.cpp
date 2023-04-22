@@ -180,7 +180,7 @@ bool SegmentsCoincidence(int a, int b, int c, int d)
 	return max(a, c) <= min(b, d);
 }
  
-bool SegmentIntersect(point a, point b, point c, point d)
+bool SegmentsIntersect(point a, point b, point c, point d)
 {
 	return SegmentsCoincidence(a.x, b.x, c.x, d.x)
 		&& SegmentsCoincidence(a.y, b.y, c.y, d.y)
