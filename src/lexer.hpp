@@ -28,6 +28,7 @@ void NumberCheck(string line, int begin, int end, int &error);
 void WriteCheck(string line, int &open_bracket, int &close_bracket, int &error);
 figure FigureCheck(string line, int begin, int end, int &error);
 double TriangleSquare(point a, point b, point c);
+bool SegmentsCoincidence(int a, int b, int c, int d);
 bool SegmentIntersect(point a, point b, point c, point d);
 double Distance(figure* Figures, int i, int j, int k);
 void Intersect(figure* Figures, int correct_count);

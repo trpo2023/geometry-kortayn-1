@@ -172,10 +172,19 @@ double TriangleSquare(point a, point b, point c)
 {
 	return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }
+
+bool SegmentsCoincidence(int a, int b, int c, int d)
+{
+	if(a > b) swap(a, b);
+	if(c > d) swap(c, d);
+	return max(a, c) <= min(b, d);
+}
  
 bool SegmentIntersect(point a, point b, point c, point d)
 {
-	return TriangleSquare(a, b, c) * TriangleSquare(a, b, d) <= 0
+	return SegmentsCoincidence(a.x, b.x, c.x, d.x)
+		&& SegmentsCoincidence(a.y, b.y, c.y, d.y)
+        && TriangleSquare(a, b, c) * TriangleSquare(a, b, d) <= 0
 		&& TriangleSquare(c, d, a) * TriangleSquare(c, d, b) <= 0;
 }
 
