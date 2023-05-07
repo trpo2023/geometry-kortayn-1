@@ -2,7 +2,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 using namespace std;
 
-string* Parser(int &lines_count);
+void Parser(vector<string> &Lines);

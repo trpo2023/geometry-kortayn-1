@@ -1,16 +1,8 @@
 #include "parser.hpp"
 
-string* Parser(int &lines_count)
+void Parser(vector<string> &Lines)
 {
-    ifstream file("geometry.txt");
     string line;
-    while(getline(file, line)) lines_count++;
-
-    file.clear();
-    file.seekg(0);
-
-    string* Lines = new string[lines_count];
-    for(int i = 0; i < lines_count; i++) getline(file, Lines[i]);
-
-    return Lines;
+    ifstream file("geometry.txt");
+    while(getline(file, line)) Lines.push_back(line);
 }

@@ -68,34 +68,31 @@ void WriteCheck(string line, int &open_bracket, int &close_bracket, int &error)
 
 figure FigureCheck(string line, int begin, int end, int &error)
 {
-    int space,
-        comma_count = 0;
+    int space;
+
+    vector<int> Commas;
 
     for(int i = begin + 1; i < end; i++)
-        if(line[i] == ',') comma_count++;
+        if(line[i] == ',') Commas.push_back(i);
 
-    int* Commas = new int[comma_count];
+    vector<point> Points;
 
-    for(int i = begin + 1, j = 0; i < end; i++)
-        if(line[i] == ',') Commas[j++] = i;
-
-    point* Points = new point[comma_count + 1];
-
-    for(int i = 0; i < comma_count; i++)
+    for(int comma : Commas)
     {
-        for(int j = begin + 1; j < Commas[i]; j++)
+        for(int j = begin + 1; j < comma; j++)
             if(line[j] == ' ') space = j;
 
         NumberCheck(line, begin + 1, space, error);
-        NumberCheck(line, space + 1, Commas[i], error);
+        NumberCheck(line, space + 1, comma, error);
 
         if(!error)
         {
-            Points[i].x = stod(line.substr(begin + 1, space));
-            Points[i].y = stod(line.substr(space + 1, Commas[i]));
+            point vertex = {stod(line.substr(begin + 1, space)),
+                            stod(line.substr(space + 1, comma))};
+            Points.push_back(vertex);
         }
 
-        begin = Commas[i] + 1;
+        begin = comma + 1;
     }
 
     figure correct_figure;
@@ -108,32 +105,31 @@ figure FigureCheck(string line, int begin, int end, int &error)
         {
             correct_figure.line = line;
             correct_figure.Points = Points;
-            correct_figure.points_count = comma_count;
             correct_figure.radius = stod(line.substr(Commas[0] + 2, end));
             correct_figure.square = M_PI * pow(stod(line.substr(Commas[0] + 2, end)), 2);
             correct_figure.perimeter = M_PI * 2 * stod(line.substr(Commas[0] + 2, end));
-            correct_figure.intersects_count = 0;
         }
     }
 
     else
     {
-        for(int i = Commas[comma_count - 1] + 2; i < end; i++)
+        for(int i = Commas[Commas.size() - 1] + 2; i < end; i++)
             if(line[i] == ' ') space = i;
 
-        NumberCheck(line, Commas[comma_count - 1] + 2, space, error);
+        NumberCheck(line, Commas[Commas.size() - 1] + 2, space, error);
         NumberCheck(line, space + 1, end, error);
         
         if(!error)
         {
             double perimeter = 0, square = 0;
 
-            Points[comma_count].x = stod(line.substr(Commas[comma_count - 1] + 2, space));
-            Points[comma_count].y = stod(line.substr(space + 1, end));
+            point vertex = {stod(line.substr(Commas[Commas.size() - 1] + 2, space)),
+                            stod(line.substr(space + 1, end))};
+            Points.push_back(vertex);
 
-            for (int i = 0; i < comma_count + 1; i++)
+            for (int i = 0; i < int(Commas.size() + 1); i++)
             {
-                int j = (i + 1) % (comma_count + 1);
+                int j = (i + 1) % (Commas.size() + 1);
                 double dx = Points[i].x - Points[j].x;
                 double dy = Points[i].y - Points[j].y;
                 perimeter += sqrt(pow(dx, 2) + pow(dy, 2));
@@ -142,24 +138,18 @@ figure FigureCheck(string line, int begin, int end, int &error)
 
             correct_figure.line = line;
             correct_figure.Points = Points;
-            correct_figure.points_count = comma_count + 1;
             correct_figure.square = fabs(square / 2);
             correct_figure.perimeter = perimeter;
-            correct_figure.intersects_count = 0;
         }
     }
 
     if(!error)
-    {
-        delete Commas;
         return correct_figure;
-    }
 
     else
     {
         figure Error;
         Error.error = 1;
-        delete Commas;
         return Error;
     }
 }
@@ -168,10 +158,10 @@ bool InsidePolygon(point vertex, figure polygon)
 {
     int count = 0;
 
-    for(int i = 0; i < polygon.points_count; i++)
+    for(int i = 0; i < int(polygon.Points.size()); i++)
     {
         point p1 = polygon.Points[i];
-        point p2 = polygon.Points[(i + 1) % polygon.points_count];
+        point p2 = polygon.Points[(i + 1) % polygon.Points.size()];
 
         if(vertex.y > min(p1.y, p2.y)
         && vertex.y <= max(p1.y, p2.y)
@@ -190,13 +180,33 @@ double Distance(point a, point b, point c)
 {
     double dx = b.x - a.x;
     double dy = b.y - a.y;
-    return fabs(dy * c.x - dx * c.y + b.x * a.y - b.y * a.x) / sqrt(pow(dy, 2) + pow(dx, 2));
+    return fabs(dy * c.x - dx * c.y + b.x * a.y - b.y * a.x)
+           / sqrt(pow(dy, 2) + pow(dx, 2));
 }
 
-void Intersect(figure* Figures, int correct_count)
+int TriangleSquare(point a, point b, point c) {
+	return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+}
+ 
+bool OverlaySegments(int a, int b, int c, int d)
 {
-    for(int i = 0; i < correct_count; i++)
-        for(int j = i + 1; j < correct_count; j++)
+	if (a > b) swap (a, b);
+	if (c > d) swap (c, d);
+	return max(a,c) <= min(b,d);
+}
+ 
+bool SegmentsIntersect(point a, point b, point c, point d)
+{
+	return OverlaySegments(a.x, b.x, c.x, d.x)
+		&& OverlaySegments(a.y, b.y, c.y, d.y)
+		&& TriangleSquare(a, b, c) * TriangleSquare(a, b, d) <= 0
+		&& TriangleSquare(c, d, a) * TriangleSquare(c, d, b) <= 0;
+}
+
+void Intersect(vector<figure> &Figures)
+{
+    for(int i = 0; i < int(Figures.size()); i++)
+        for(int j = i + 1; j < int(Figures.size()); j++)
         {
             if(Figures[i].line.substr(0, 6) == "circle" && Figures[j].line.substr(0, 6) == "circle")
             {
@@ -205,8 +215,8 @@ void Intersect(figure* Figures, int correct_count)
 
                 if(Figures[i].radius + Figures[j].radius > distance)
                 {
-                    Figures[i].Intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". circle";
-                    Figures[j].Intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". circle";
+                    Figures[i].Intersects.push_back(to_string(j + 1) + ". circle");
+                    Figures[j].Intersects.push_back(to_string(i + 1) + ". circle");
                 }
             }
 
@@ -214,35 +224,53 @@ void Intersect(figure* Figures, int correct_count)
             {
                 bool intersect = 0;
 
-                for(int k = 0; k < Figures[i].points_count; k++)
-                    if(InsidePolygon(Figures[i].Points[k], Figures[j])) intersect = 1;
+                for(int k = 0; k < int(Figures[i].Points.size()); k++)
+                    if(InsidePolygon(Figures[i].Points[k], Figures[j]))
+                        intersect = 1;
 
-                for(int k = 0; k < Figures[j].points_count; k++)
-                    if(InsidePolygon(Figures[j].Points[k], Figures[i])) intersect = 1;
+                for(int k = 0; k < int(Figures[j].Points.size()); k++)
+                    if(InsidePolygon(Figures[j].Points[k], Figures[i]))
+                        intersect = 1;
+
+                for(int k = 0; k < int(Figures[i].Points.size() - 1); k++)
+                    for(int l = 0; l < int(Figures[j].Points.size() - 1); l++)
+                        if(SegmentsIntersect(Figures[i].Points[k],
+                                             Figures[i].Points[k + 1],
+                                             Figures[j].Points[l],
+                                             Figures[j].Points[l + 1]))
+                            intersect = 1;
+
+                if(SegmentsIntersect(Figures[i].Points[Figures[i].Points.size() - 1],
+                                     Figures[i].Points[0],
+                                     Figures[j].Points[Figures[j].Points.size() - 1],
+                                     Figures[j].Points[0]))
+                    intersect = 1;
 
                 if(intersect)
-                    {
-                        Figures[i].Intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". polygon";
-                        Figures[j].Intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". polygon"; 
-                    }
+                {
+                    Figures[i].Intersects.push_back(to_string(j + 1) + ". polygon");
+                    Figures[j].Intersects.push_back(to_string(i + 1) + ". polygon"); 
+                }
             }
 
             if(Figures[i].line.substr(0, 7) == "polygon" && Figures[j].line.substr(0, 6) == "circle") 
             {
                 bool intersect = 0;
 
-                for(int k = 0; k < Figures[i].points_count - 1; k++) 
-                    if(Distance(Figures[i].Points[k], Figures[i].Points[k + 1], Figures[j].Points[0]) < Figures[j].radius)
+                for(int k = 0; k < int(Figures[i].Points.size() - 1); k++)
+                    if(Distance(Figures[i].Points[k], Figures[i].Points[k + 1],
+                                Figures[j].Points[0]) < Figures[j].radius)
                         intersect = 1;
                     
-                if(Distance(Figures[i].Points[Figures[i].points_count - 1], Figures[i].Points[0], Figures[j].Points[0]) < Figures[j].radius
-                || InsidePolygon(Figures[j].Points[0], Figures[i]))
+                if(Distance(Figures[i].Points[Figures[i].Points.size() - 1],
+                            Figures[i].Points[0], Figures[j].Points[0]) < Figures[j].radius
+                            || InsidePolygon(Figures[j].Points[0], Figures[i]))
                     intersect = 1;
 
                 if(intersect)
                 {
-                    Figures[i].Intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". circle";
-                    Figures[j].Intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". polygon"; 
+                    Figures[i].Intersects.push_back(to_string(j + 1) + ". circle");
+                    Figures[j].Intersects.push_back(to_string(i + 1) + ". polygon"); 
                 }
             }
 
@@ -250,44 +278,39 @@ void Intersect(figure* Figures, int correct_count)
             {
                 bool intersect = 0;
 
-                for(int k = 0; k < Figures[j].points_count - 1; k++)  
-                    if(Distance(Figures[j].Points[k], Figures[j].Points[k + 1], Figures[i].Points[0]) < Figures[i].radius)
+                for(int k = 0; k < int(Figures[j].Points.size() - 1); k++)  
+                    if(Distance(Figures[j].Points[k], Figures[j].Points[k + 1],
+                                Figures[i].Points[0]) < Figures[i].radius)
                         intersect = 1;
                     
-                if(Distance(Figures[j].Points[Figures[i].points_count - 1], Figures[j].Points[0], Figures[i].Points[0]) < Figures[i].radius
-                || InsidePolygon(Figures[i].Points[0], Figures[j]))
+                if(Distance(Figures[j].Points[Figures[i].Points.size() - 1], Figures[j].Points[0],
+                            Figures[i].Points[0]) < Figures[i].radius
+                            || InsidePolygon(Figures[i].Points[0], Figures[j]))
                     intersect = 1;
 
                 if(intersect)
                 {
-                    Figures[i].Intersects[Figures[i].intersects_count++] = to_string(j + 1) + ". polygon";
-                    Figures[j].Intersects[Figures[j].intersects_count++] = to_string(i + 1) + ". circle"; 
+                    Figures[i].Intersects.push_back(to_string(j + 1) + ". polygon");
+                    Figures[j].Intersects.push_back(to_string(i + 1) + ". circle"); 
                 }
             }
         }
 }
 
-figure* Lexer(string* Lines, int lines_count, int &correct_count)
+void Lexer(vector<string> &Lines, vector<figure> &Figures)
 {
-    figure* Figures = new figure[lines_count];
-
-    for(int i = 0; i < lines_count; i++)
+    for(string line : Lines)
     {
         int open_bracket = 0,
             close_bracket = 0,
             error = 0;
 
-        WriteCheck(Lines[i], open_bracket, close_bracket, error);
-        figure input_figure = FigureCheck(Lines[i], open_bracket, close_bracket, error);
+        WriteCheck(line, open_bracket, close_bracket, error);
+        figure input_figure = FigureCheck(line, open_bracket, close_bracket, error);
 
         if(input_figure.error != 1)
-            Figures[correct_count++] = input_figure;
+            Figures.push_back(input_figure);
     }
 
-    for(int i = 0; i < correct_count; i++) Figures[i].Intersects = new string[correct_count];
-
-    Intersect(Figures, correct_count);
-
-    delete Lines;
-    return Figures;
+    Intersect(Figures);
 }

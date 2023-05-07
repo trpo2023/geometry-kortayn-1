@@ -3,24 +3,21 @@
 
 int main()
 {
-    int lines_count = 0, correct_count = 0;
+    vector<string> Lines;
+    vector<figure> Figures;
+    Parser(Lines);
+    Lexer(Lines, Figures);
 
-    string* Lines = Parser(lines_count);
-    figure* Figures = Lexer(Lines, lines_count, correct_count);
-
-    for(int i = 0; i < correct_count; i++)
+    for(figure i : Figures)
     {
-        cout << "\n" << i + 1 << ". " << Figures[i].line << "\n"
-             << "Square = " << Figures[i].square << "\n"
-             << "Perimeter = " << Figures[i].perimeter << "\n"
+        int count = 1;
+        cout << "\n" << count++ << ". " << i.line << "\n"
+             << "Square = " << i.square << "\n"
+             << "Perimeter = " << i.perimeter << "\n"
              << "Intersects:\n";
-        for(int j = 0; j < Figures[i].intersects_count; j++)
-            cout << "\t" << Figures[i].Intersects[j] << "\n";
-
-        delete Figures[i].Points;
-        delete Figures[i].Intersects;
+        for(string j : i.Intersects)
+            cout << "\t" << j << "\n";
     }
 
-    delete Figures;
     return 0;
 }

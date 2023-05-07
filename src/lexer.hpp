@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <vector>
 #include <cmath>
 
 using namespace std;
@@ -14,13 +15,11 @@ struct point
 struct figure
 {
     string line;
-    point* Points;
-    int points_count;
+    vector<point> Points;
     double radius;
     double square;
     double perimeter;
-    string* Intersects;
-    int intersects_count;
+    vector<string> Intersects;
     int error;
 };
 
@@ -29,5 +28,8 @@ void WriteCheck(string line, int &open_bracket, int &close_bracket, int &error);
 figure FigureCheck(string line, int begin, int end, int &error);
 bool InsidePolygon(point vertex, figure polygon);
 double Distance(point a, point b, point c);
-void Intersect(figure* Figures, int correct_count);
-figure* Lexer(string* Lines, int lines_count, int &correct_count);
+int TriangleSquare(point a, point b, point c);
+bool OverlaySegments(int a, int b, int c, int d);
+bool SegmentsIntersect(point a, point b, point c, point d);
+void Intersect(vector<figure> &Figures);
+void Lexer(vector<string> &Lines, vector<figure> &Figures);
